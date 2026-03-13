@@ -10,7 +10,6 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 
 | Skill | Description |
 |-------|-------------|
-| [bookmark](skills/bookmark/SKILL.md) | Save a session reference for easy resume — just a pointer, no context dump |
 | [bug-bash](skills/bug-bash/SKILL.md) | Interactive QA — report bugs conversationally, agents fix them in parallel using worktrees |
 | [changelog](skills/changelog/SKILL.md) | Generate an intelligent changelog from recent commits |
 | [debug](skills/debug/SKILL.md) | Multi-agent competing hypotheses debugging |
@@ -24,7 +23,6 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [list-skills](skills/list-skills/SKILL.md) | Quick reference of all available skills |
 | [merge](skills/merge/SKILL.md) | Merge current branch to master via GitHub PR merge |
 | [nexonia-expenses](skills/nexonia-expenses/SKILL.md) | Browser automation for expense reports — reads receipts, builds line items, automates form entry |
-| [paused-sessions](skills/paused-sessions/SKILL.md) | List all paused sessions across projects |
 | [pr](skills/pr/SKILL.md) | Open a PR, wait for CI, fix failures, address review comments, loop until green |
 | [pr-dashboard](skills/pr-dashboard/SKILL.md) | Show open PRs, review requests, and recently closed PRs with age and status |
 | [promote](skills/promote/SKILL.md) | Audit project skills and recommend which to promote to global |
@@ -33,8 +31,6 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [save-w-specs](skills/save-w-specs/SKILL.md) | Save progress — update SPECs for behavioral changes, then commit |
 | [test](skills/test/SKILL.md) | Intelligent test runner that targets changed code and identifies coverage gaps |
 | [unstaged](skills/unstaged/SKILL.md) | Show uncommitted changes grouped by logical commit themes |
-| [wind-down](skills/wind-down/SKILL.md) | Save session context to disk for later resume |
-| [wind-up](skills/wind-up/SKILL.md) | Resume a previously paused session |
 | [write-skill](skills/write-skill/SKILL.md) | Create or improve a Claude Code skill with best practices |
 
 ## Plugins I Use

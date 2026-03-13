@@ -16,6 +16,10 @@ EXCLUDE=(
   monthly-rhythm
   logo
   software-best-practices
+  bookmark
+  paused-sessions
+  wind-down
+  wind-up
 )
 
 is_excluded() {
