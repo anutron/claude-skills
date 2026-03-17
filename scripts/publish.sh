@@ -27,6 +27,9 @@ EXCLUDE=(
 
 is_excluded() {
   local name="$1"
+  # Exclude namespaced personal/work skills (never published)
+  [[ "$name" == airon-* ]] && return 0
+  [[ "$name" == thanx-* ]] && return 0
   for ex in "${EXCLUDE[@]}"; do
     [[ "$name" == "$ex" ]] && return 0
   done
