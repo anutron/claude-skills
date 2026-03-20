@@ -20,6 +20,7 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [fixit](skills/fixit/SKILL.md) | Fire-and-forget bug fix — backgrounds an agent in a worktree to fix and merge back |
 | [guard](skills/guard/SKILL.md) | Pre-commit safety check for secrets, security antipatterns, and test breakage |
 | [handoff](skills/handoff/SKILL.md) | Generate a handoff prompt to pass context to another agent thread |
+| [interview](skills/interview/SKILL.md) | Structured interview-style review of any system, feature, or codebase — walks through items one-by-one in small chunks, tracks progress, captures decisions as artifacts |
 | [improve](skills/improve/SKILL.md) | End-of-session retrospective — upgrade skills, fix codebase gaps, capture durable knowledge |
 | [list-skills](skills/list-skills/SKILL.md) | Quick reference of all available skills |
 | [mcp-prune](skills/mcp-prune/SKILL.md) | Analyze active MCP servers and disable irrelevant ones for the current project |

@@ -17,6 +17,7 @@ If no arguments provided, reply: `Usage: /fixit <describe the bug>` and stop.
 
 - Current branch: !`git branch --show-current`
 - Project root: !`pwd`
+- Spec-aware project: !`test -f .specs && cat .specs || echo "no .specs file"`
 
 ---
 
@@ -62,12 +63,31 @@ Use the `Agent` tool with `run_in_background: true` and `mode: "bypassPermission
 ### Files Likely Involved
 <from triage search, or "Explore the codebase to find the relevant code">
 
+### Spec-Aware Project
+<if .specs file exists in project root>
+This project uses specs. The spec directory is: <dir from .specs file, default "specs">
+
+**You MUST follow spec-first order:**
+1. Find the relevant spec in the specs directory
+2. Add the bug's failing case to the spec
+3. Write/update a test that reproduces the bug
+4. Implement the fix to pass the test
+5. Run all tests
+6. Commit with message: "Fix: <short description>"
+
+Include the spec file in your commit.
+</if .specs file exists>
+<if no .specs file>
+No spec management required.
+</if>
+
 ### Instructions
 1. Explore the codebase to understand the problem
-2. Implement the fix
-3. Run tests if test infrastructure exists (check Makefile, README, package.json, etc.)
-4. Commit with message: "Fix: <short description>"
-5. If you can't figure it out, commit nothing and report what you tried
+2. If this is a spec-aware project (see above), follow spec-first order
+3. Otherwise: implement the fix directly
+4. Run tests if test infrastructure exists (check Makefile, README, package.json, etc.)
+5. Commit with message: "Fix: <short description>"
+6. If you can't figure it out, commit nothing and report what you tried
 
 ### Constraints
 - Work ONLY in your worktree directory
@@ -109,6 +129,7 @@ Report to user:
 ```
 ✅ Fixit merged: <short title>
   <1-2 line summary of what the agent changed>
+  📋 Specs: <Updated (specs/foo.md) | No behavioral change | Skipped (no .specs file)>
 ```
 
 **If merge conflicts:**

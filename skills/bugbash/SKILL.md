@@ -26,6 +26,7 @@ If agent teams are not enabled, report: "Agent teams required. Add `CLAUDE_CODE_
 - Current branch: !`git branch --show-current`
 - Git status: !`git status --short`
 - Project root: !`pwd`
+- Spec-aware project: !`test -f .specs && cat .specs || echo "no .specs file"`
 - Existing bugs: !`for d in todo in-progress blocked merged verified failed conflict; do files=$(find .bug-bash/$d -name 'bug-*.md' 2>/dev/null); [ -n "$files" ] && echo "[$d]" && echo "$files"; done; true`
 
 ---
@@ -242,14 +243,30 @@ Use the Agent tool with `run_in_background: true` and `mode: "bypassPermissions"
 ### Files Likely Involved
 <from bug.md, or "Explore the codebase to find the relevant code">
 
+### Spec-Aware Project
+<if .specs file exists in project root>
+This project uses specs. The spec directory is: <dir from .specs file, default "specs">
+
+**You MUST follow spec-first order:**
+1. Find the relevant spec in the specs directory
+2. Add the bug's failing case to the spec
+3. Write/update a test that reproduces the bug
+4. Implement the fix to pass the test
+5. Include the spec file in your commit
+</if .specs file exists>
+<if no .specs file>
+No spec management required.
+</if>
+
 ### Instructions
 1. Read the bug spec and any attachments
 2. Explore the codebase to understand the problem
-3. Implement the fix
-4. Run tests if test infrastructure exists (look for Makefile, test commands in README, etc.)
-5. **Write resolution to the bug file** (see Resolution Documentation below)
-6. Commit your changes with message: "Fix BUG-<NNN>: <title>"
-7. If you hit uncertainty that requires a human decision, STOP and report (see Blocked Bugs below)
+3. If this is a spec-aware project (see above), follow spec-first order
+4. Otherwise: implement the fix directly
+5. Run tests if test infrastructure exists (look for Makefile, test commands in README, etc.)
+6. **Write resolution to the bug file** (see Resolution Documentation below)
+7. Commit your changes with message: "Fix BUG-<NNN>: <title>"
+8. If you hit uncertainty that requires a human decision, STOP and report (see Blocked Bugs below)
 
 ### Resolution Documentation
 Before committing, append these sections to the bug file:
@@ -313,6 +330,7 @@ git merge bug-bash/BUG-<NNN> --no-edit
   ```
   BUG-<NNN> merged: <title>
     <1-line summary of what the agent did>
+    📋 Specs: <Updated (specs/foo.md) | Skipped (no .specs file)>
   ```
 
 **If merge conflicts:**

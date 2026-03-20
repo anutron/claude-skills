@@ -31,6 +31,7 @@ If no arguments are provided, ask the user what they want to build.
 - Project type: !`find . -maxdepth 1 \( -name go.mod -o -name Gemfile -o -name package.json -o -name Cargo.toml -o -name pyproject.toml -o -name setup.py -o -name requirements.txt -o -name Makefile \) 2>/dev/null | head -5`
 - Recent commits: !`git log --oneline -5`
 - Test files: !`find . -maxdepth 4 -name "*_test.*" -o -name "*.test.*" -o -name "*_spec.*" -o -name "test_*" 2>/dev/null | head -10`
+- Spec-aware project: !`test -f .specs && cat .specs || echo "no .specs file"`
 - SPEC files: !`find . -path "*/specs/*.md" 2>/dev/null | head -10`
 - CLAUDE.md: !`head -5 CLAUDE.md 2>/dev/null | head -5`
 
@@ -58,10 +59,12 @@ You do NOT write code yourself. You coordinate teammates, route feedback, and pr
    - Build tool (bundle, yarn, npm, pip, etc.)
    - Linter (rubocop, eslint, ruff, etc.)
 
-4. **Check for existing SPECs.** If the project has a `specs/` directory:
-   - Read any SPEC files related to the task
+4. **Check for specs.** If the project has a `.specs` file at its root:
+   - Read any SPEC files related to the task from the spec directory (configured in `.specs`, default `specs/`)
    - The SPEC is the source of truth for behavior -- the implementation must conform to it
-   - If no relevant SPEC exists and the project uses SPEC-driven development (check CLAUDE.md), create one and present it for approval before proceeding
+   - **Spec-first order is mandatory:** Update the spec FIRST, then write tests from the spec, then implement
+   - If no relevant SPEC exists, create one and present it for approval before proceeding
+   - If no `.specs` file exists, skip spec management entirely
 
 5. **Explore the codebase** to understand relevant code, patterns, and conventions. Read key files related to the task. Understand the existing architecture before proposing changes.
 
