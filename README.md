@@ -24,7 +24,7 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [list-skills](skills/list-skills/SKILL.md) | Quick reference of all available skills |
 | [mcp-prune](skills/mcp-prune/SKILL.md) | Analyze active MCP servers and disable irrelevant ones for the current project |
 | [merge](skills/merge/SKILL.md) | Merge current branch to master via GitHub PR merge |
-| [nexonia-expenses](skills/nexonia-expenses/SKILL.md) | Browser automation for expense reports — reads receipts, builds line items, automates form entry |
+| [plannotator-specs](skills/plannotator-specs/SKILL.md) | Interactive spec review via Plannotator — review with inline annotations before committing |
 | [pr](skills/pr/SKILL.md) | Open a PR, wait for CI, fix failures, address review comments, loop until green |
 | [pr-dashboard](skills/pr-dashboard/SKILL.md) | Show open PRs, review requests, and recently closed PRs with age and status |
 | [promote](skills/promote/SKILL.md) | Audit project skills and recommend which to promote to global |

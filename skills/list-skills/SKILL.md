@@ -40,7 +40,7 @@ Print a short "Relevant Now" section (3-6 skills max) based on the work context.
 - In the middle of building something? Suggest: /dev, /test, /debug
 - Open PR waiting for CI? Suggest: /pr, /pr-dashboard
 - Long session with lots of work? Suggest: /improve, /handoff, /changelog
-- On main with no changes? Suggest: /dev, /pr-dashboard, /daily-rhythm (if in AI-RON)
+- On main with no changes? Suggest: /dev, /pr-dashboard, /airon-daily-rhythm (if in AI-RON)
 - Working on skills? Suggest: /write-skill, /promote, /steal
 
 Format:
@@ -63,7 +63,7 @@ OTHER SKILLS
   Git & PR:     /pr  /merge  /changelog  /pr-dashboard
   Session:      /handoff  /improve  /promote  /list-skills
   Creation:     /logo  /write-skill
-  AI-RON only:  /daily-rhythm  /weekly-rhythm  /monthly-rhythm  /steal  /nexonia-expenses
+  AI-RON only:  /airon-daily-rhythm  /airon-weekly-rhythm  /airon-monthly-rhythm  /steal  /airon-nexonia-expenses  /airon-calendar
 ```
 
 Use the compact one-line-per-category format for this section. Only show categories that have remaining skills (after removing the ones in "Relevant Now"). Omit AI-RON only if not in the AI-RON repo.

@@ -26,6 +26,7 @@ Capture these variables (you'll need them for every subsequent step):
 
 ```bash
 WORKTREE_PATH=$(pwd)
+WORKTREE_DIR=$(basename "$WORKTREE_PATH")
 WORKTREE_BRANCH=$(git branch --show-current)
 MAIN_REPO=$(git worktree list | head -1 | awk '{print $1}')
 MAIN_BRANCH=$(git -C "$MAIN_REPO" symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's|refs/remotes/origin/||')
@@ -47,39 +48,38 @@ Options:
   - "Squash (single commit)"
 ```
 
-### Step 3: Switch to main repo and merge
+### Step 3: Merge from the main repo
 
-**CRITICAL: `cd` to the main repo FIRST. All remaining work happens from there.**
+**CRITICAL: Run the merge command targeting the main repo with `git -C`. Do NOT `cd` to the main repo — the Bash tool's cwd is pinned to the worktree, and removing the worktree later would brick all subsequent commands.**
 
-```bash
-cd "$MAIN_REPO"
-```
-
-Stash any uncommitted changes on main (note whether the stash actually saved anything):
+Stash any uncommitted changes on main:
 
 ```bash
-git stash 2>/dev/null
+git -C "$MAIN_REPO" stash 2>/dev/null
 ```
 
 Then merge:
 
 **If merge mode:**
 ```bash
-git checkout "$MAIN_BRANCH" && git merge "$WORKTREE_BRANCH" --no-edit
+git -C "$MAIN_REPO" merge "$WORKTREE_BRANCH" --no-edit
 ```
 
 **If squash mode:**
 ```bash
-git checkout "$MAIN_BRANCH" && git merge --squash "$WORKTREE_BRANCH"
+git -C "$MAIN_REPO" merge --squash "$WORKTREE_BRANCH"
 ```
-Then craft a commit message from the branch's overall changes and commit with a `Co-Authored-By` line.
+Then craft a commit message from the branch's overall changes and commit with a `Co-Authored-By` line:
+```bash
+git -C "$MAIN_REPO" commit -m "..."
+```
 
 ### Step 4: Handle merge conflicts
 
 If the merge has conflicts:
 - Report the conflicting files
 - Ask the user how to proceed (resolve, abort, or keep worktree)
-- If abort: `git merge --abort`, stop
+- If abort: `git -C "$MAIN_REPO" merge --abort`, stop
 - Do NOT force or auto-resolve
 
 ### Step 5: Verify and report
@@ -87,7 +87,7 @@ If the merge has conflicts:
 Verify the merge landed:
 
 ```bash
-git log -1 --oneline
+git -C "$MAIN_REPO" log -1 --oneline
 ```
 
 If the commit is not there, STOP. Report the failure. Do not proceed.
@@ -95,35 +95,28 @@ If the commit is not there, STOP. Report the failure. Do not proceed.
 If successful, restore any stashed changes:
 
 ```bash
-git stash pop 2>/dev/null
+git -C "$MAIN_REPO" stash pop 2>/dev/null
 ```
 
 Then report:
 
 ```
 Merged <WORKTREE_BRANCH> into <MAIN_BRANCH> (<mode>).
-You are now on <MAIN_BRANCH> in <MAIN_REPO>.
 ```
 
-### Step 6: Ask about cleanup
+### Step 6: Tell user to clean up from another terminal
 
-**Do NOT automatically clean up the worktree.** Ask the user:
+**CRITICAL: Do NOT run `git worktree remove` or `git branch -d` from this session.** The Bash tool's cwd is still inside the worktree directory. Removing it makes the cwd invalid, bricking all further shell commands in this session.
+
+The merge is the critical step — once that succeeds, the work is safe on main. Cleanup is cosmetic and can happen from anywhere.
+
+Tell the user:
 
 ```
-Question: "Want me to remove the worktree and branch?"
-Options:
-  - "Yes, clean up"
-  - "No, keep it"
+Cleanup (run from another terminal):
+
+cd <MAIN_REPO>
+git worktree remove .claude/worktrees/<WORKTREE_DIR>
+git worktree prune
+git branch -d <WORKTREE_BRANCH>
 ```
-
-**Only if they say yes:**
-
-```bash
-git worktree remove "$WORKTREE_PATH" && git branch -D "$WORKTREE_BRANCH" && git worktree prune
-```
-
-Do NOT use `--force`. If removal fails, investigate and report — don't retry with force.
-
-**IMPORTANT:** Only remove THIS worktree. Never run `git worktree prune` without `git worktree remove` first — prune only cleans up already-deleted directories, but running it carelessly can affect other worktrees.
-
-If they say no, remind them the worktree is still at `<WORKTREE_PATH>` and the branch is `<WORKTREE_BRANCH>`.
