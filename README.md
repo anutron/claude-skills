@@ -30,7 +30,7 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [promote](skills/promote/SKILL.md) | Audit project skills and recommend which to promote to global |
 | [rereview](skills/rereview/SKILL.md) | Re-review with fresh eyes — zero regressions, slow and thorough |
 | [review](skills/review/SKILL.md) | Quick code review shorthand for current changes or a PR number |
-| [save-w-specs](skills/save-w-specs/SKILL.md) | Save progress — update SPECs for behavioral changes, then commit |
+| [save-w-specs](skills/save-w-specs/SKILL.md) | Save progress — spec-aware commit that verifies specs were updated alongside behavioral changes |
 | [skill-audit](skills/skill-audit/SKILL.md) | Analyze skill usage logs and recommend which to keep, prune, or consolidate |
 | [test](skills/test/SKILL.md) | Intelligent test runner that targets changed code and identifies coverage gaps |
 | [unstaged](skills/unstaged/SKILL.md) | Show uncommitted changes grouped by logical commit themes |
