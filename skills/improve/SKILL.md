@@ -49,111 +49,127 @@ For each skill identified, analyze:
 4. **Incorrect assumptions** -- anything the skill file says that turned out wrong
 5. **Missing capabilities** -- things the user asked for that the skill did not cover
 
-### Step 3: Propose Improvements
+### Step 3: Write the Improvement Report
 
-For each skill with learnings, draft specific changes:
+**Check if Plannotator is available** by looking for `/plannotator-annotate` in the available skills list. The review flow changes depending on whether it's present:
 
-- **Fix factual errors** (e.g., wrong library name, outdated API)
-- **Add learned patterns** (e.g., "when exporting tables, use proportional column widths")
-- **Add missing instructions** (e.g., "can also accept `--input` flag for existing files")
-- **Add troubleshooting tips** (e.g., "if tables show whitespace, check for multi_cell usage")
-- **Suggest new skills** if a recurring pattern does not have one yet
+- **With Plannotator:** Write the report to a file, open it for inline annotation review, then apply approved changes.
+- **Without Plannotator:** Present the report inline in the conversation, ask which changes to apply (default: all), then apply.
 
-Present each proposed change as a before/after diff for the user to review.
+If Plannotator is available, write the full report to `working/YYYY-MM-DD/improve-report.md`. Structure it for easy annotation — each proposal should be independently reviewable.
 
-### Step 4: Apply Improvements
+If Plannotator is NOT available, you can still write the report to a file for reference, but present the key proposals inline and use `AskUserQuestion` to get approval.
 
-1. Ask the user which changes to apply (default: all)
-2. Edit the skill files with the approved changes
-3. Summarize what was updated
+The report should contain ALL of the following sections:
 
-### Step 5: Fix Codebase Gaps
+```markdown
+# Session Improvement Report — YYYY-MM-DD
 
-Review the session for codebase gaps that were discovered or worked around but not fixed. These are issues in the project itself (not in skills):
+## Skills Used
+1. **/skill-name** — what it did in this session
 
-- **Missing or outdated documentation** -- CLAUDE.md, README sections that are wrong, incomplete, or missing components used during the session
-- **Missing tests** -- code paths exercised manually but with no test coverage
-- **Missing error handling** -- failures that surfaced because a code path had no guard
-- **Configuration gaps** -- env vars, CI steps, linter rules, or build config that caused friction
-- **Undocumented patterns** -- conventions the codebase follows implicitly that tripped up work
+## Proposed Skill Improvements
 
-For each gap found:
-1. Describe the gap and how it caused friction
-2. Propose a specific fix (as a diff when possible)
-3. Apply after user approval
+### /skill-name — N changes
 
-Only fix gaps that were actually encountered during the session. Do not speculatively audit the codebase.
+#### 1. Change title
+**Type:** fix | pattern | instruction | troubleshooting
+**Why:** What friction this addresses (specific anecdote from session)
+**Before:**
+> Current text from the skill file (quote the relevant section)
 
-### Step 6: Check for New Skill Opportunities
+**After:**
+> Proposed replacement text
 
-Look for patterns in the session not covered by any existing skill:
-- Multi-step workflows that were done manually
-- Recurring command sequences
-- Integration patterns with MCP tools or external services
+---
 
-If found, propose a new skill with a brief description of what it would do.
+## Codebase Gaps Found
 
-**For each proposed skill, ask the user where it should live:**
+### 1. Gap title
+**File:** path/to/file (or "new file needed")
+**Friction:** How this gap caused problems during the session
+**Proposed fix:** Description or diff of the fix
 
-1. **This project only** — Skill is specific to the current repo. Write to `.claude/skills/<name>/SKILL.md` in the current project.
+---
 
-2. **AI-RON (version-controlled, local)** — Skill is personal but not universal. Write to `~/Personal/AI-RON/.claude/skills/<name>/SKILL.md`. This keeps it in git but does not make it available in other projects.
+## New Skill Proposals
 
-3. **Global (via AI-RON)** — Skill is universal and useful everywhere. Write to `~/Personal/AI-RON/.claude/skills/<name>/SKILL.md` AND create a symlink at `~/.claude/skills/<name>` pointing to it. This keeps the source in git while making it available in all projects.
+### /proposed-name
+**What it does:** Brief description
+**Pattern observed:** What happened in the session that suggests this skill
+**Suggested location:** AI-RON | Global | Project-only
+**Why that location:** Classification reasoning
 
-**Classification guidance:**
+---
+
+## Knowledge to Capture
+
+### 1. Observation title
+**Category:** skill-pattern | debugging | architecture | tool-behavior | workflow | people | project-convention
+**Confidence:** high | medium | low
+**Content:** The durable observation
+**Destination:** memory file path or memory-observe MCP call
+
+---
+```
+
+**Guidelines for the report:**
+- Each proposed change should quote the actual before/after text so Aaron can evaluate without context-switching
+- Codebase gaps should only include issues actually encountered, not speculative audits
+- Knowledge items should not duplicate CLAUDE.md or existing memory entries
+- New skill proposals should include the classification reasoning (Global/AI-RON/Project-only)
+
+### Step 4: Review
+
+**With Plannotator:** Invoke `/plannotator-annotate` on the report file:
+
+```
+/plannotator-annotate working/YYYY-MM-DD/improve-report.md
+```
+
+This lets the user review each proposal with inline comments — approving, rejecting, or modifying individual items without a back-and-forth conversation.
+
+**Without Plannotator:** Present each proposed change as a before/after diff inline. Use `AskUserQuestion` to ask which changes to apply (default: all). For many changes, group them and ask per-section rather than per-item.
+
+### Step 5: Apply Approved Changes
+
+Process the review results (Plannotator annotations or inline answers):
+
+1. **Approved items (no annotation, or explicit approval)** — Apply the change
+2. **Items with comments/modifications** — Incorporate the feedback, then apply
+3. **Rejected items** — Skip
+
+For each section:
+- **Skill improvements** — Edit the skill files with approved changes
+- **Codebase gaps** — Apply the approved fixes
+- **New skills** — Create the skill files in the approved locations. For each new skill, ask where it should live if not specified in the report:
+  - **This project only** — `.claude/skills/<name>/SKILL.md` in current project
+  - **AI-RON (version-controlled, local)** — `~/Personal/AI-RON/.claude/skills/<name>/SKILL.md`
+  - **Global (via AI-RON)** — AI-RON path AND symlink at `~/.claude/skills/<name>`
+- **Knowledge** — Write to memory using the approved destination (memory-observe MCP or auto-memory files)
+
+**Classification guidance for new skills:**
 - **Global**: General dev workflows (testing, reviewing, debugging, git operations). No project-specific dependencies.
 - **AI-RON**: Personal routines, Supabase memory integration, personal data sources. Depends on AI-RON infrastructure.
 - **Project-only**: Workflows specific to the repo being worked in (deploy scripts, project-specific generators, domain logic).
 
-### Step 7: Capture Knowledge to Memory
+**Memory guidelines:**
+- Categories: `skill-pattern`, `debugging`, `architecture`, `tool-behavior`, `workflow`, `people`, `project-convention`
+- Do NOT capture: anything already in CLAUDE.md, session-specific transients, operational todos, speculative conclusions, duplicate observations
 
-Review the session for durable knowledge worth preserving.
+### Step 6: Summary
 
-**What to capture:**
-- Architectural decisions or constraints discovered during this session
-- Project-specific patterns (naming conventions, API quirks, deploy procedures)
-- Debugging insights (what caused a tricky bug, what the fix was)
-- Tool/dependency behavior that was non-obvious
-- People, entities, or relationships learned during the session
-
-**How to write observations (in priority order):**
-
-1. **If `memory-observe` MCP tool is available** — use it with the appropriate category and confidence level. This is the preferred method when working in projects with a memory MCP server.
-
-2. **Otherwise — use auto-memory files.** Write to the project's auto-memory directory (typically `~/.claude/projects/<project-path>/memory/MEMORY.md` or topic-specific files like `debugging.md`, `patterns.md`). Use the `Edit` tool to append observations. Check existing content first to avoid duplicates.
-
-Categories: `skill-pattern`, `debugging`, `architecture`, `tool-behavior`, `workflow`, `people`, `project-convention`
-
-**Do NOT capture:**
-- Anything already in CLAUDE.md
-- Session-specific transients (file paths being worked on, temp state)
-- Operational items (todos, plans in progress)
-- Speculative conclusions from a single observation
-- Information that duplicates existing observations
-
-### Step 8: Summary
-
-Present a final report:
+After applying changes, present a brief summary of what was done:
 
 ```
-# Session Improvement Report
+## Applied
+- [skill] /skill-name: change description
+- [gap] file: what was fixed
+- [new] /skill-name: created at location
+- [knowledge] category: observation
 
-## Skills Used
-1. /skill-name -- what it did in this session
-
-## Improvements Applied
-### /skill-name -- N changes
-1. **Change type: Title** -- description
-
-## Codebase Gaps Fixed
-1. **File: description** -- what was fixed
-
-## New Skill Proposals
-- /proposed-name -- what it would do
-
-## Knowledge Captured
-- [category] observation text (confidence: high/medium/low)
+## Skipped
+- reason for each skipped item
 ```
 
 ## What NOT to Improve
