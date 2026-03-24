@@ -56,7 +56,7 @@ For each skill identified, analyze:
 - **With Plannotator:** Write the report to a file, open it for inline annotation review, then apply approved changes.
 - **Without Plannotator:** Present the report inline in the conversation, ask which changes to apply (default: all), then apply.
 
-If Plannotator is available, write the full report to `working/YYYY-MM-DD/improve-report.md`. Structure it for easy annotation — each proposal should be independently reviewable.
+If Plannotator is available, write the full report to `~/.claude/improve-reports/YYYY-MM-DD/improve-report.md`. Structure it for easy annotation — each proposal should be independently reviewable.
 
 If Plannotator is NOT available, you can still write the report to a file for reference, but present the key proposals inline and use `AskUserQuestion` to get approval.
 
@@ -124,7 +124,7 @@ The report should contain ALL of the following sections:
 **With Plannotator:** Invoke `/plannotator-annotate` on the report file:
 
 ```
-/plannotator-annotate working/YYYY-MM-DD/improve-report.md
+/plannotator-annotate ~/.claude/improve-reports/YYYY-MM-DD/improve-report.md
 ```
 
 This lets the user review each proposal with inline comments — approving, rejecting, or modifying individual items without a back-and-forth conversation.
