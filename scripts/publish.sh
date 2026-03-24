@@ -74,5 +74,25 @@ for f in "${BIN_PUBLISH[@]}"; do
   fi
 done
 
+# Copy hooks
+HOOKS_SOURCE="$HOME/Personal/AI-RON/scripts"
+HOOKS_DEST="$(cd "$(dirname "$0")/.." && pwd)/hooks"
+HOOKS_PUBLISH=(
+  log-skill-use.sh
+  log-slash-command.sh
+)
+
+mkdir -p "$HOOKS_DEST"
+hooks_copied=0
+for f in "${HOOKS_PUBLISH[@]}"; do
+  if [ -f "$HOOKS_SOURCE/$f" ]; then
+    cp "$HOOKS_SOURCE/$f" "$HOOKS_DEST/$f"
+    echo "  copy: hooks/$f"
+    hooks_copied=$((hooks_copied + 1))
+  else
+    echo "  MISSING: hooks/$f"
+  fi
+done
+
 echo ""
-echo "Published $copied skills ($skipped excluded), $bin_copied bin files"
+echo "Published $copied skills ($skipped excluded), $bin_copied bin files, $hooks_copied hooks"

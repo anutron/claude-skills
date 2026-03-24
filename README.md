@@ -36,6 +36,7 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [skill-audit](skills/skill-audit/SKILL.md) | Analyze skill usage logs and recommend which to keep, prune, or consolidate |
 | [test](skills/test/SKILL.md) | Intelligent test runner that targets changed code and identifies coverage gaps |
 | [unstaged](skills/unstaged/SKILL.md) | Show uncommitted changes grouped by logical commit themes |
+| [upload-notion-image](skills/upload-notion-image/SKILL.md) | Upload local images to Notion pages natively via the Notion API file upload flow |
 | [worktree](skills/worktree/SKILL.md) | Close a git worktree and merge it back to the main branch |
 | [write-skill](skills/write-skill/SKILL.md) | Create or improve a Claude Code skill with best practices |
 
@@ -51,6 +52,55 @@ To use the status line, point your Claude Code settings at it:
   "statusLine": ".claude/bin/statusline.sh"
 }
 ```
+
+## Hooks
+
+Shell scripts that run as [Claude Code hooks](https://docs.anthropic.com/en/docs/claude-code/hooks) to log skill usage for analysis.
+
+| Hook | Trigger | Description |
+|------|---------|-------------|
+| [log-skill-use.sh](hooks/log-skill-use.sh) | `PostToolUse` (matcher: `Skill`) | Logs every Skill tool invocation to `~/.claude/skill-usage.tsv` |
+| [log-slash-command.sh](hooks/log-slash-command.sh) | `UserPromptSubmit` | Logs user-typed `/commands` to the same TSV (deduplicates with the above) |
+
+### Setup
+
+1. Copy the hooks somewhere persistent (e.g., `~/.claude/hooks/`):
+   ```bash
+   mkdir -p ~/.claude/hooks
+   cp hooks/log-skill-use.sh hooks/log-slash-command.sh ~/.claude/hooks/
+   chmod +x ~/.claude/hooks/log-skill-use.sh ~/.claude/hooks/log-slash-command.sh
+   ```
+
+2. Register them in `~/.claude/settings.json`:
+   ```json
+   {
+     "hooks": {
+       "UserPromptSubmit": [
+         {
+           "hooks": [
+             {
+               "type": "command",
+               "command": "~/.claude/hooks/log-slash-command.sh"
+             }
+           ]
+         }
+       ],
+       "PostToolUse": [
+         {
+           "matcher": "Skill",
+           "hooks": [
+             {
+               "type": "command",
+               "command": "~/.claude/hooks/log-skill-use.sh"
+             }
+           ]
+         }
+       ]
+     }
+   }
+   ```
+
+3. Use the [skill-audit](skills/skill-audit/SKILL.md) skill to analyze the collected data after a few weeks.
 
 ## Plugins I Use
 
