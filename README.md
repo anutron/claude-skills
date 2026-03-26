@@ -1,6 +1,8 @@
-# Claude Code Skills
+# Claude Code Workbench
 
-My collection of [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills. Steal what's useful.
+A workbench for disciplined AI-assisted development. This isn't where you build applications — it's where you refine the system of *how* you build. Skills, rules, hooks, and the statusline are all parts of one system for making Claude Code repeatable and deliberate.
+
+Steal what's useful, adapt to your workflow.
 
 ## Usage
 
@@ -40,6 +42,28 @@ Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or
 | [upload-notion-image](skills/upload-notion-image/SKILL.md) | Upload local images to Notion pages natively via the Notion API file upload flow |
 | [worktree](skills/worktree/SKILL.md) | Close a git worktree and merge it back to the main branch |
 | [write-skill](skills/write-skill/SKILL.md) | Create or improve a Claude Code skill with best practices |
+
+## Claude Rules
+
+Version-controlled CLAUDE.md snippets with a compilation system. Rules are the persistent behavioral instructions that tell Claude how you want it to work — the complement to skills, which define what it can do.
+
+See [claude-rules/README.md](claude-rules/README.md) for setup and usage.
+
+| Snippet | Scope | Description |
+|---------|-------|-------------|
+| `010-claudemd-management` | global | How CLAUDE.md files are compiled from snippets — never edit dist files directly |
+| `020-plan-formatting` | global | Markdown formatting requirements for plans, reports, and structured output |
+| `030-interaction-prefs` | global | Question-by-question and step-by-step interaction patterns |
+| `040-plan-execution-handoff` | global | What to do after a plan is approved — archive, show execute command, offer options |
+| `050-git-workflow` | global | Commit every turn, imperative messages, pre-commit hook for specs |
+| `060-plannotator-spec-review` | global | Interactive spec review via Plannotator before committing |
+| `070-testing` | global | Test-driven development defaults and framework choices by stack |
+| `080-spec-driven-dev` | global | Spec-first development — spec then test then implement, never the reverse |
+| `090-plan-archiving` | global | Archive approved plans to `specs/plans/` for future reference |
+| `010-communication-style` | project | Be opinionated and decisive — recommend, don't hedge |
+| `020-documentation` | project | Every app needs a README, setup docs, and inline comments |
+| `030-working-directory` | project | Ephemeral scratch files go in `working/YYYY-MM-DD/` |
+| `040-skill-naming` | project | Naming conventions — `airon-` and `thanx-` prefixes for private skills |
 
 ## Extras
 
