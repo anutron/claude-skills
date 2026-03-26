@@ -11,15 +11,8 @@ DEST="$(cd "$(dirname "$0")/.." && pwd)/skills"
 EXCLUDE=(
   steal
   refresh-command-center
-  daily-rhythm
-  weekly-rhythm
-  monthly-rhythm
   logo
   software-best-practices
-  bookmark
-  paused-sessions
-  wind-down
-  wind-up
   publish-skills
   todo-agent
 )
