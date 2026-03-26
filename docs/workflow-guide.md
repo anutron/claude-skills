@@ -22,9 +22,7 @@ Rules live as **snippets** -- small, focused markdown files that get compiled in
 - `claude-rules/snippets/project/*.md` -- Rules specific to a single project (tech stack, directory structure, domain knowledge)
 - `claude-rules/compile.sh` -- Compiles snippets into dist files, which are symlinked to where Claude reads them
 
-<!-- ILLUSTRATION: File layout diagram — snippets → compile.sh → symlinks → CLAUDE.md. Show global vs project paths, how Claude reads compiled output. Technical, annotated. -->
-<!-- Generate with /airon-illustrate, save to docs/images/file-layout.png, then replace this block with: -->
-<!-- ![File layout diagram](images/file-layout.png) -->
+![File layout diagram](images/file-layout.png)
 
 **Why snippets instead of one big file?**
 
@@ -83,9 +81,7 @@ Given X, the system does Y, resulting in Z
 
 The process is simple and the order is non-negotiable:
 
-<!-- ILLUSTRATION: Spec/TDD cycle — interview → spec → plan → test → implement → review → improve loop. Technical flow diagram. -->
-<!-- Generate with /airon-illustrate, save to docs/images/spec-tdd-cycle.png, then replace this block with: -->
-<!-- ![Spec/TDD cycle](images/spec-tdd-cycle.png) -->
+![Spec/TDD cycle](images/spec-tdd-cycle.png)
 
 ### 1. Interview
 
