@@ -4,6 +4,11 @@ A workbench for disciplined AI-assisted development. This isn't where you build 
 
 Steal what's useful, adapt to your workflow.
 
+## Docs
+
+- **[Workflow Guide](docs/workflow-guide.md)** — How the pieces fit together: skills, rules, hooks, and the development loop
+- **[Claude Rules README](claude-rules/README.md)** — Setup and usage for the snippet-based CLAUDE.md compilation system
+
 ## Usage
 
 Copy any `SKILL.md` file into your project's `.claude/skills/<name>/SKILL.md` or your global `~/.claude/skills/<name>/SKILL.md`.
