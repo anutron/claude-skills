@@ -18,7 +18,7 @@ Not for codebases with zero specs — that's a backfill task, not an audit.
 - Spec-aware project: !`test -f .specs && cat .specs || echo "no .specs file"`
 - Project type: !`find . -maxdepth 1 \( -name go.mod -o -name Gemfile -o -name package.json -o -name Cargo.toml -o -name pyproject.toml \) 2>/dev/null | head -5`
 - Spec files: !`find specs/ -name "*.md" -not -path "*/plans/*" -not -path "*/todo/*" -not -path "*/audits/*" 2>/dev/null | head -30`
-- Code file count: !`find . -name "*.go" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.js" | grep -v node_modules | grep -v vendor | wc -l`
+- Code file count: !`find . \( -name "*.go" -o -name "*.ts" -o -name "*.py" -o -name "*.rb" -o -name "*.js" \) -not -name "*_test.go" -not -name "*.test.*" -not -name "*.spec.*" -not -path "*/test/*" -not -path "*/__tests__/*" | grep -v node_modules | grep -v vendor | wc -l`
 - Last audit: !`ls -t specs/audits/*/index.md 2>/dev/null | head -1`
 - Current date: !`date +%Y-%m-%d`
 
@@ -29,7 +29,7 @@ Not for codebases with zero specs — that's a backfill task, not an audit.
 **Fail immediately if:**
 - No `.specs` file exists → "This project doesn't use specs. Add a `.specs` file to opt in."
 - No spec files found in the spec directory → "No spec files found. Write specs first, then audit. Use `/spec-recommender` to get started."
-- Massive imbalance: more than 10x code files vs spec files → Present the ratio and ask: "This project has {N} code files but only {M} specs. An audit would flag almost everything as uncovered. Consider running `/spec-recommender` first to build baseline coverage, then audit. Proceed anyway? (y/n)"
+- Massive imbalance: more than 10x code files vs spec files AND specs appear to be file-organized (1:1 with code files) → Present the ratio and ask: "This project has {N} code files but only {M} specs. An audit would flag almost everything as uncovered. Consider running `/spec-recommender` first to build baseline coverage, then audit. Proceed anyway? (y/n)" **Skip this check if specs are feature-organized** (e.g., organized by area like `specs/core/`, `specs/plugin/`, `specs/builtin/`). Feature-organized specs routinely cover 10-20 code files each, making the raw ratio misleading. Instead, proceed to the mapping phase and assess actual coverage after mapping.
 
 ---
 
@@ -114,6 +114,8 @@ Output as JSON:
 
 The agent should read spec files to understand their scope, and skim code files (exports + package/module structure) to understand what they do. It does NOT need to read every line of code — just enough to determine the mapping.
 
+**IMPORTANT:** The mapping agent must use exact file paths as provided in the inventory. It should NOT guess or construct filenames based on conventions — projects vary (e.g., `eventbus.go` vs `event_bus.go`, `governed_runner.go` vs `governed.go`). If unsure of a filename, verify with Glob before including it in the mapping.
+
 Write the mapping to `specs/audits/{date}/mapping.json`.
 
 ### 1c: Scope negotiation
@@ -146,11 +148,15 @@ Use `AskUserQuestion` to let the user choose scope. Record their choice.
 
 ### Agent dispatch
 
-For the scoped set of files, dispatch agents in batches of 3-5. Each agent receives:
+For the scoped set of files, **group by module directory** (e.g., `internal/agent/`, `internal/builtin/commandcenter/`). Each agent receives all files in a module plus their mapped spec sections. This produces coherent per-module reports and is far more efficient than per-file dispatch.
 
-- One code file (full contents)
-- Its mapped spec file(s) and relevant sections (full contents)
-- The mapping context (what other files implement the same spec sections)
+Dispatch agents in parallel batches of 3-5. For large modules (15+ files), keep them as single agents — they share spec context and can identify cross-file patterns. For tiny modules (1-3 files), combine related modules into a single agent.
+
+Each agent receives:
+
+- All code files in the module (full contents)
+- Their mapped spec file(s) and relevant sections (full contents)
+- The mapping context (what other modules implement the same spec sections)
 
 Each agent's job:
 
