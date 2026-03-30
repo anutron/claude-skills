@@ -28,7 +28,13 @@ Determine which spec file to review:
 
 Run the plannotator annotate command on the identified spec file. The user will review it in their browser and leave inline comments.
 
-!`plannotator annotate $ARGUMENTS`
+If `$ARGUMENTS` was provided and you identified the file in step 1, run:
+
+```bash
+plannotator annotate <spec-file-path>
+```
+
+If `$ARGUMENTS` was not provided, you must first identify the file (step 1), then run the command with the resolved path.
 
 ### Step 3: Address feedback
 

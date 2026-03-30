@@ -124,6 +124,16 @@ Record the starting point so ralph's own changes can be isolated later:
 PRE_RALPH_SHA=$(git rev-parse HEAD)
 ```
 
+Ensure the reviews directory exists and is gitignored:
+
+```bash
+mkdir -p .claude/reviews
+# Add to .gitignore if not already covered
+if ! git check-ignore -q .claude/reviews 2>/dev/null; then
+  echo ".claude/reviews/" >> .gitignore
+fi
+```
+
 Print a status summary:
 
 ```
@@ -186,6 +196,8 @@ Use the following prompt template:
 You are a thorough code reviewer performing an autonomous review for the ralph-review loop.
 
 MANDATE: Analyze every changed line. Classify every finding. When in doubt, flag it.
+
+SUPPRESSION: Lines annotated with `// expected:` (or `# expected:` in Python/shell/YAML) have been reviewed and acknowledged by the user. Do not re-report findings on these lines unless the surrounding logic has materially changed since the comment was added. The comment text explains why the behavior is intentional — read it before deciding.
 
 CONFIDENCE TIER: {confidence_tier}
 - "spec": Spec is authoritative for behavior. Plan is advisory for structure.
@@ -293,10 +305,14 @@ For each [AUTO-FIX], include:
 - Behavioral change that looks intentional but has no spec coverage
 
 For each [QUESTION], include:
-- File and line number
-- What was found
-- Why you can't determine the right fix
-- What judgment the user needs to make
+- File and line number (for the main thread's reference)
+- **What's happening** — plain language summary accessible to someone who didn't write the code. Lead with the situation, not the implementation detail.
+- **What could go wrong** — the consequence in terms of system behavior, not code mechanics. "Session data could get corrupted" not "the backing array could be shared."
+- **Inferred intent** — what you think the developer was trying to achieve and why
+- **Recommendation** — what you think should be done and why. Take a position.
+- **Options** — put the recommendation first, then alternatives
+
+Frame questions for a user who may not know the codebase. The code was likely written by Claude, not the user. Explain the *so what*, not the *how*.
 
 **[SPEC-DRIFT]** — Behavioral code without spec coverage (spec tier only):
 - New behavior with no spec mention
@@ -308,6 +324,12 @@ For each [SPEC-DRIFT], include:
 - What the code does
 - What the spec says (or "spec is silent on this")
 - Draft recommendation for what the spec should say
+
+**[ACKNOWLEDGED]** — Suppressed by `// expected:` comment:
+- The line has an `// expected:` (or `# expected:`) annotation
+- The annotation's reasoning still holds given the current surrounding code
+- Do NOT re-report these. List them in a separate "Acknowledged" section for transparency only.
+- If the surrounding logic has materially changed and the annotation may be stale, reclassify as `[QUESTION]` with a note that the `// expected:` comment should be reviewed.
 
 **[SKIP]** — Not actionable:
 - Stylistic preference with no spec/plan opinion
@@ -332,6 +354,7 @@ Structure your report as:
 - AUTO-FIX count: {N}
 - QUESTION count: {N}
 - SPEC-DRIFT count: {N}
+- ACKNOWLEDGED count: {N}
 - SKIP count: {N}
 - Regression confidence: HIGH / MEDIUM / LOW
 
@@ -454,10 +477,10 @@ After the loop exits, generate the report.
 ### Setup
 
 ```bash
-mkdir -p working/$(date +%Y-%m-%d)
+mkdir -p .claude/reviews/$(date +%Y-%m-%d)
 ```
 
-Write the report to `working/YYYY-MM-DD/ralph-review-report.md` AND display it in the terminal.
+Write the report to `.claude/reviews/YYYY-MM-DD/ralph-review-report.md` AND display it in the terminal.
 
 ### Report Template
 
@@ -525,16 +548,21 @@ See "Spec Drift Handling → Post-Report Resolution" above.
 
 ### Option 2: Questions for You
 
-Present each finding one at a time via `AskUserQuestion`:
+Present each finding one at a time via `AskUserQuestion`. Frame every question for someone who didn't write the code — the user likely directed Claude to build it, not hand-authored it. Lead with the situation and consequence, not implementation details.
 
 ```
-Finding: {description}
-File: {file:line}
-Context: {why the agent couldn't determine the fix}
+Question {N} of {total}: {short descriptive title}
 
-Options:
-1. Fix it — {describe what needs to happen}
-2. Ignore — accept current behavior
+{What's happening — plain language, 2-3 sentences. No jargon, no line numbers
+in the narrative. Explain the situation as you would to a product owner.}
+
+{What could go wrong — the consequence in terms of system behavior.
+"Users could see stale data" not "the goroutine reads a shared pointer."}
+
+Recommendation: {What Ralph thinks should be done and why. Take a position.}
+
+1. Accept recommendation — {what that means concretely}
+2. Ignore — mark as expected with an inline comment so future reviews skip it
 3. Add to spec — this behavior is intentional, capture it
 4. Defer — park this for a future session
 ```
@@ -544,7 +572,7 @@ After the user answers, dispatch the work in the background and immediately pres
 **Dispatching by answer type:**
 
 - **Fix it** → Use `/fixit` to background the fix in a worktree. Compose the fixit description from the finding + the user's answer. Move to the next question immediately.
-- **Ignore** → Skip, move to next finding.
+- **Ignore** → Offer to add an `// expected:` comment to the relevant line(s) so future reviews don't re-report the same finding. Show the proposed annotation for approval (e.g., `// expected: broadcastMessage ignores handled bool`). If the user approves, add the comment and commit it. If they decline, skip silently. Either way, move to next finding.
 - **Add to spec** → Update the spec file inline (this is fast — just text), then `/fixit` the implementation in background if code changes are needed. Move to the next question immediately.
 - **Defer** → Create a todo marker in `specs/todo/` (see "Todo Markers" below). Move to the next question immediately.
 
@@ -578,7 +606,7 @@ How would you like to review ralph's changes?
 ```
 
 - **Terminal diff:** `git diff {PRE_RALPH_SHA}...HEAD`
-- **Plannotator** (only offer if available — check `which plannotator 2>/dev/null`): `plannotator annotate working/YYYY-MM-DD/ralph-review-report.md`
+- **Plannotator** (only offer if available — check `which plannotator 2>/dev/null`): `plannotator annotate .claude/reviews/YYYY-MM-DD/ralph-review-report.md`
 - **GitHub PR:** `gh pr create` with the ralph-review report as the PR body
 
 ### Option 5: Done
@@ -590,7 +618,7 @@ Ralph-review complete.
 - {N} issues auto-fixed across {N} loops
 - {N} questions parked for you
 - {N} spec drift items {resolved | pending}
-- Report saved to: working/YYYY-MM-DD/ralph-review-report.md
+- Report saved to: .claude/reviews/YYYY-MM-DD/ralph-review-report.md
 ```
 
 ### Loop Until Done
@@ -613,7 +641,7 @@ Filename: `YYYY-MM-DD-slug.md` (sorts chronologically, human-scannable).
 
 ```markdown
 ---
-source: working/YYYY-MM-DD/ralph-review-report.md
+source: .claude/reviews/YYYY-MM-DD/ralph-review-report.md
 created: YYYY-MM-DD
 skill: ralph-review
 severity: low | medium | high

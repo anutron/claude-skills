@@ -69,6 +69,7 @@ That's it. One line. The `dir` field says where specs live (defaults to `specs/`
 |-------|-------------|
 | [spec-writer](skills/spec-writer/SKILL.md) | Write properly formatted spec text — single source of truth for the SPEC format |
 | [spec-recommender](skills/spec-recommender/SKILL.md) | Detect code without spec coverage, infer intent, present options |
+| [spec-audit](skills/spec-audit/SKILL.md) | Audit codebase spec coverage — inventory files and specs, map them, find behavioral gaps |
 | [spec-todo](skills/spec-todo/SKILL.md) | List and execute deferred work items from `specs/todo/` |
 | [ralph-review](skills/ralph-review/SKILL.md) | Autonomous review loop — compares code against specs, auto-fixes, flags drift |
 | [save-w-specs](skills/save-w-specs/SKILL.md) | Spec-aware commits — verifies specs updated alongside behavioral changes |
@@ -114,13 +115,16 @@ This works well for small-to-medium codebases. For large-scale applications, you
 
 | Skill | Description |
 |-------|-------------|
+| [dev](skills/dev/SKILL.md) | Multi-agent iterative development with parallel testing and code review |
 | [execute-plan](skills/execute-plan/SKILL.md) | Execute a plan with a team of agents, delegating to spare tokens in the main thread |
 | [fixit](skills/fixit/SKILL.md) | Fire-and-forget bug fix — backgrounds an agent in a worktree to fix and merge back |
 | [test](skills/test/SKILL.md) | Intelligent test runner that targets changed code and identifies coverage gaps |
 | [debug](skills/debug/SKILL.md) | Multi-agent competing hypotheses debugging |
 | [bugbash](skills/bugbash/SKILL.md) | Interactive QA — report bugs conversationally, agents fix them in parallel using worktrees |
+| [guard](skills/guard/SKILL.md) | Pre-commit safety check for secrets, security antipatterns, and test breakage |
 | [unstaged](skills/unstaged/SKILL.md) | Show uncommitted changes grouped by logical commit themes |
-| [close-worktree](skills/close-worktree/SKILL.md) | Close a git worktree and merge it back to the main branch |
+| [worktree](skills/worktree/SKILL.md) | Close a git worktree and merge it back to the main branch |
+| [review](skills/review/SKILL.md) | Quick code review shorthand — reviews current changes or a PR number |
 | [rereview](skills/rereview/SKILL.md) | Re-review with fresh eyes — zero regressions, slow and thorough |
 
 ### Git & PR
@@ -144,7 +148,9 @@ This works well for small-to-medium codebases. For large-scale applications, you
 | [write-skill](skills/write-skill/SKILL.md) | Create or improve a Claude Code skill with best practices |
 | [skill-audit](skills/skill-audit/SKILL.md) | Analyze skill usage logs and recommend which to keep, prune, or consolidate |
 | [promote](skills/promote/SKILL.md) | Audit project skills and recommend which to promote to global |
+| [disk-cleanup](skills/disk-cleanup/SKILL.md) | Scan local disk for large storage consumers and identify cleanup opportunities |
 | [mcp-prune](skills/mcp-prune/SKILL.md) | Analyze active MCP servers and disable irrelevant ones for the current project |
+| [upload-notion-image](skills/upload-notion-image/SKILL.md) | Upload local images to Notion pages natively via the Notion API file upload flow |
 | [set-topic](skills/set-topic/SKILL.md) | Set the session topic displayed in the [status line](bin/statusline.sh) |
 | [list-skills](skills/list-skills/SKILL.md) | Quick reference of all available skills |
 
