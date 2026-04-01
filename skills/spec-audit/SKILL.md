@@ -11,7 +11,7 @@ Not for codebases with zero specs — that's a backfill task, not an audit.
 
 ## Arguments
 
-- `$ARGUMENTS` - Optional: directory or module scope (e.g., `internal/auth/`, `src/api/`). Without arguments, audits the entire project.
+- `$ARGUMENTS` - Optional: directory or module scope (e.g., `internal/auth/`, `src/api/`), or `--full` to force a full audit. Without arguments, audits the entire project (incremental if a previous audit exists).
 
 ## Context
 
@@ -33,6 +33,82 @@ Not for codebases with zero specs — that's a backfill task, not an audit.
 
 ---
 
+## Phase 0: Incremental Detection
+
+Before running the full audit pipeline, determine whether an incremental audit is possible. This phase decides the audit mode: **full**, **incremental**, or **no-op**.
+
+### Step 1: Check for previous audit
+
+```bash
+LAST_AUDIT=$(ls -td specs/audits/*/inventory.json 2>/dev/null | head -1)
+```
+
+If no previous audit exists → **full audit**. Skip the rest of Phase 0.
+
+### Step 2: Check for explicit overrides
+
+- If `$ARGUMENTS` contains `--full` → **full audit** (strip `--full` from arguments before continuing)
+- If `$ARGUMENTS` contains a scoped path (e.g., `src/api/`) → **scoped full audit** (no incremental, no SHA update at end — a scoped audit doesn't cover the full graph)
+
+### Step 3: Read previous commit SHA
+
+Read the `commit_sha` field from the previous audit's `inventory.json`.
+
+If the field is missing or empty → **full audit** (legacy audit without SHA tracking).
+
+### Step 4: Compute changed files
+
+```bash
+git diff <previous_sha>..HEAD --name-only
+```
+
+If `git diff` fails (detached HEAD, shallow clone, etc.) → **full audit** with warning: `"Could not compute diff from {sha}. Running full audit."`
+
+Filter the diff output to code files and spec files only (same extensions as the inventory scan: `*.go`, `*.ts`, `*.py`, `*.rb`, `*.js`, and `specs/*.md`).
+
+If no code or spec files changed → **no-op**:
+```
+No spec-relevant changes since last audit ({sha}, {date}). Run `/spec-audit --full` to re-audit everything.
+```
+Stop here. Do not proceed to Phase 1.
+
+### Step 5: Check auto-escalation triggers
+
+Escalate to **full audit** (with reason printed) if any of these are true:
+
+1. **Spec files were added or deleted** (not just modified — check `git diff --diff-filter=AD` for spec files):
+   ```
+   Spec files added/deleted since last audit. Running full audit.
+   ```
+
+2. **Affected modules exceed 30% of total modules** (computed after the graph walk in Step 6):
+   ```
+   Significant changes detected ({N}% of modules affected). Running full audit.
+   ```
+
+### Step 6: Graph walk — determine affected modules
+
+Walk the mapping graph bidirectionally using the previous audit's `mapping.json`:
+
+1. **Changed code file** → find its mapped spec sections → find all other code files mapped to those same sections
+2. **Changed spec file** → find all code files mapped to it
+
+Collect all affected files, then group by module directory to get the affected module set.
+
+If affected modules exceed 30% of the previous audit's total modules → auto-escalate (Step 5.2).
+
+### Step 7: Print incremental summary
+
+```
+Incremental audit: {N} files changed since {sha} ({date})
+Affected modules: {list of module paths}
+Unaffected modules: {N} (skipped)
+```
+
+Set `$AUDIT_MODE = incremental` and `$AFFECTED_MODULES` for use in later phases.
+
+---
+
 ## Phase 1: Inventory
 
 ### 1a: Deterministic scan (no LLM)
@@ -51,7 +127,8 @@ Write to `specs/audits/{date}/inventory.json`:
 ```json
 {
   "date": "YYYY-MM-DD",
-  "scope": "full | <scoped path>",
+  "commit_sha": "<current HEAD short SHA — run `git rev-parse --short HEAD`>",
+  "scope": "full | incremental | <scoped path>",
   "code_files": [
     {
       "path": "internal/auth/handler.go",
@@ -118,7 +195,29 @@ The agent should read spec files to understand their scope, and skim code files 
 
 Write the mapping to `specs/audits/{date}/mapping.json`.
 
-### 1c: Scope negotiation
+**Important: `commit_sha` write rules:**
+- **Full audit** and **incremental audit**: Write current HEAD SHA to `inventory.json` at the end of the audit.
+- **Scoped audit** (user passed a directory path like `src/api/`): Do NOT write `commit_sha`. A scoped audit doesn't cover the full graph, so storing HEAD would cause the next incremental audit to skip changes in unscoped modules.
+
+### 1b½: Incremental scope determination (incremental mode only)
+
+**Skip this section entirely if `$AUDIT_MODE` is not `incremental`.** Go straight to Phase 1c.
+
+Using the fresh `mapping.json` from Phase 1b and the changed file list from Phase 0 Step 4, walk the mapping graph:
+
+1. For each **changed code file**: look up its mapped spec sections in `code_to_spec` → collect all other code files that map to those same spec sections (via `spec_to_code`)
+2. For each **changed spec file**: look up all code files mapped to it (via `spec_to_code`)
+3. Union all affected files, then group by module directory → this is `$AFFECTED_MODULES`
+
+Now check the 30% escalation threshold:
+- Count total modules in the fresh inventory (group all code files by directory)
+- If `|$AFFECTED_MODULES| / |total modules| > 0.30` → auto-escalate to full audit with message and restart from Phase 1c as a full audit
+
+If still incremental, skip Phase 1c entirely — the scope is `$AFFECTED_MODULES`, auto-determined.
+
+### 1c: Scope negotiation (full audit only)
+
+**Skip this section if `$AUDIT_MODE` is `incremental`.** The scope is already determined by Phase 1b½.
 
 Present a dashboard to the user:
 
@@ -252,7 +351,13 @@ After all agents complete, the coordinator reads only the one-line summaries. It
 
 **`specs/audits/{date}/gaps.md`** — All uncovered-behavioral and contradiction findings, sorted by severity (contradictions first, then uncovered-behavioral grouped by module).
 
-**`specs/audits/{date}/index.md`** — Summary dashboard:
+**`specs/audits/{date}/index.md`** — Summary dashboard.
+
+**Incremental mode adjustments:**
+- The Coverage by Module table includes **only analyzed modules** — untouched modules are omitted entirely (no staleness markers, no placeholders)
+- The Summary counts reflect only the analyzed modules, with a note: `"(incremental — {N} of {M} modules analyzed)"`
+- The Delta section compares against the previous audit's results **for the same modules only** — not the full previous audit
+- Add a line at the top: `"Incremental audit from {previous_sha} to {current_sha}"`
 
 ```markdown
 # Spec Audit — {date}
