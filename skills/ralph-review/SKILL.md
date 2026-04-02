@@ -312,13 +312,13 @@ For each [AUTO-FIX], include:
 
 For each [QUESTION], include:
 - File and line number (for the main thread's reference)
-- **What's happening** — plain language summary accessible to someone who didn't write the code. Lead with the situation, not the implementation detail.
-- **What could go wrong** — the consequence in terms of system behavior, not code mechanics. "Session data could get corrupted" not "the backing array could be shared."
-- **Inferred intent** — what you think the developer was trying to achieve and why
-- **Recommendation** — what you think should be done and why. Take a position.
+- **What's happening** — plain language summary accessible to someone who didn't write the code. Lead with the observable behavior, not the implementation. e.g., "the UI freezes briefly during X" not "functionA() calls sleep() on the main thread."
+- **What could go wrong** — the consequence in terms of system behavior, not code mechanics. e.g., "users could see stale data" not "the backing array could be shared."
+- **Tradeoffs** — what you gain and what you lose with each option. Every design choice has a reason it exists; surface that. e.g., "removing the delay makes the operation feel snappier but risks the previous process not fully completing before the new one starts."
+- **Recommendation** — what you think should be done and why, informed by the tradeoffs. Take a position.
 - **Options** — put the recommendation first, then alternatives
 
-Frame questions for a user who may not know the codebase. The code was likely written by Claude, not the user. Explain the *so what*, not the *how*.
+Frame questions for a user who may not know the codebase. The code was likely written by Claude, not the user. Explain the *so what*, not the *how*. Reference the spec and desired behavior, not implementation details.
 
 **[SPEC-DRIFT]** — Behavioral code without spec coverage (spec tier only):
 - New behavior with no spec mention
@@ -605,9 +605,13 @@ Question {N} of {total}: {short descriptive title}
 in the narrative. Explain the situation as you would to a product owner.}
 
 {What could go wrong — the consequence in terms of system behavior.
-"Users could see stale data" not "the goroutine reads a shared pointer."}
+e.g., "users could see stale data" not "the goroutine reads a shared pointer."}
 
-Recommendation: {What Ralph thinks should be done and why. Take a position.}
+{Tradeoffs — what you gain vs. what you lose with each option. Surface why
+the current behavior might exist before recommending a change.}
+
+Recommendation: {What Ralph thinks should be done and why, informed by
+the tradeoffs. Take a position.}
 
 1. Accept recommendation — {what that means concretely}
 2. Ignore — mark as expected with an inline comment so future reviews skip it

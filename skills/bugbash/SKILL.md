@@ -181,9 +181,11 @@ Do NOT add a "Fix Approach" section. The agent will figure it out.
 
 **Note:** No `status:` field in frontmatter — the folder is the status.
 
-### Step 5: Investigate Before Dispatching
+### Step 5: Investigate or Fast-Path
 
-Before dispatching a fix agent, run a **read-only investigation agent** in the background. This catches dependency conflicts without blocking bug intake — you keep accepting new bugs while investigations run.
+**Clear tier bugs skip investigation.** If the user named files, described expected vs actual behavior, and the fix is likely isolated (cosmetic, config, single-file), go directly to Step 6 (Dispatch). The investigation gate exists to catch dependency conflicts — Clear tier bugs have low conflict risk by definition.
+
+**Locatable and Ambiguous tier bugs require investigation.** Run a read-only investigation agent in the background. This catches dependency conflicts without blocking bug intake — you keep accepting new bugs while investigations run.
 
 **Move to investigating:**
 ```bash
@@ -330,7 +332,7 @@ No spec management required.
 4. **Check dependencies** — if the investigation flagged callers or risks, verify your fix doesn't break them
 5. If this is a spec-aware project (see above), follow spec-first order
 6. Otherwise: implement the fix directly
-7. Run tests if test infrastructure exists (look for Makefile, test commands in README, etc.)
+7. **Run targeted tests** for the packages/files you changed (e.g., `go test ./internal/tui/...`, `npm test -- --testPathPattern=sidebar`). Do NOT run the full project test suite — the coordinator runs that after merge. If you can't identify targeted tests, run the full suite as a fallback.
 8. **Write resolution to the bug file** (see Resolution Documentation below)
 9. Commit your changes with message: "Fix BUG-<NNN>: <title>"
 10. If you hit uncertainty that requires a human decision, STOP and report (see Blocked Bugs below)
@@ -384,12 +386,7 @@ git merge bug-bash/BUG-<NNN> --no-edit
 ```
 
 **If merge succeeds:**
-- Verify the build:
-  ```bash
-  # Check that the merged code compiles
-  go build ./... 2>&1 || npm run build 2>&1 || make build 2>&1
-  ```
-  If the build fails, treat it as a merge conflict — `git reset --hard HEAD~1` to undo the merge, move the bug to `conflict/`, and report the build error to the user.
+- Do NOT rebuild immediately — rebuilds are batched. The coordinator runs a single full build + test after all pending merges complete, or when the user requests it (e.g., via `status`, `report`, or `done`). This avoids rebuilding N times for N merges.
 - Move bug file:
   ```bash
   mv .bug-bash/in-progress/bug-<NNN>.md .bug-bash/merged/
@@ -616,12 +613,20 @@ Then dispatch any new bugs from failures.
 
 Since each agent works in its own worktree on its own branch, code-level collisions are rare. However:
 
-### Same-file Conflicts
+### Same-file Overlap Check (HARD GATE)
 
-If two bugs likely touch the same file:
-- **Before dispatching**: check if an in-progress bug lists overlapping files
-- **If overlap detected**: keep the second bug in `todo/` with a note: "Waiting for BUG-<NNN> to merge first (same files)"
-- **After first merges**: dispatch the second, which will be based on the updated code
+**Before dispatching every bug**, check if any in-progress bug lists overlapping files in its "Files Likely Involved" section:
+
+```bash
+# For each file in the new bug's "Files Likely Involved":
+grep -l "<filename>" .bug-bash/in-progress/bug-*.md 2>/dev/null
+```
+
+- **If overlap detected**: DO NOT dispatch. Keep the bug in `todo/` with a note: "Waiting for BUG-<NNN> to merge first (same files: <list>)". Tell the user.
+- **After the blocking bug merges**: auto-dispatch the waiting bug (it will be based on the updated code via the worktree rebase step).
+- **If overlap is uncertain** (e.g., "Unknown — agent should explore"): dispatch anyway. The merge step catches conflicts.
+
+This is not optional. Dispatching two agents that touch the same file wastes both agents' work when the second merge conflicts.
 
 ### Merge Order
 
@@ -682,9 +687,12 @@ Every line of source code you read in the main thread is wasted context. But a f
 
 1. **Never read source code yourself** — agents do that (triage + investigation)
 2. **Never write fixes yourself** — fix agents do that
-3. **Always investigate before dispatching** — the Explore agent checks for conflicts and dependencies
+3. **Investigate before dispatching** — except Clear tier bugs which skip investigation
 4. **Locate relevant files** with up to 3 Glob/Grep calls per bug during triage (paths only, no content)
 5. **Review investigation findings** before dispatching fix agents — block on high-risk conflicts
-6. **Only read**: bug files, agent results, investigation output, git status/log/diff
-7. **Keep agent prompts detailed** so they work autonomously — include investigation findings
-8. **Bug reports to user are 1-2 lines max** — don't echo back everything
+6. **Check file overlap** before dispatching — serialize agents that touch the same files
+7. **Agents run targeted tests** — only for the packages they changed, not the full suite
+8. **Batch rebuilds** — don't rebuild after each merge. One build after all merges land.
+9. **Only read**: bug files, agent results, investigation output, git status/log/diff
+10. **Keep agent prompts detailed** so they work autonomously — include investigation findings
+11. **Bug reports to user are 1-2 lines max** — don't echo back everything
