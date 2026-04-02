@@ -1,8 +1,10 @@
 ## SPEC-Driven Development
 
+**Applies to:** `~/Personal/*` and `~/Development/ai/*` projects. Does NOT apply to `~/Development/thanx/*` (those follow Thanx conventions).
+
 **Opt-in per project via `.specs` file.** Projects with a `.specs` file at their root use spec-driven development. Projects without one do not.
 
-**Recommendation:** If the user creates a new application or asks to create/modify code in a project that lacks a `.specs` file, recommend adding one.
+**Recommendation:** When working in `~/Personal/*` or `~/Development/ai/*`, if the user creates a new application or asks to create/modify code in a project that lacks a `.specs` file, recommend adding one.
 
 **`.specs` file format:**
 ```
@@ -32,30 +34,7 @@ One line. The `dir` field says where specs live (defaults to `specs/`). If the f
 - `Specs: Skipped (no .specs file)` — project doesn't use specs
 - `Specs: Missing` — behavioral changes without spec updates
 
-**SPEC Format (Markdown):**
-
-```markdown
-# SPEC: Feature Name
-
-## Purpose
-Why this exists, what problem it solves
-
-## Interface
-- **Inputs**: What goes in
-- **Outputs**: What comes out
-- **Dependencies**: What it needs
-
-## Behavior
-Step-by-step: given X, system does Y, resulting in Z
-
-## Test Cases
-- Happy path
-- Error cases
-- Edge cases
-
-## Examples
-Concrete usage examples with real data
-```
+**Writing Specs:** Always use `/spec-writer` to produce spec text. It owns the SPEC format and ensures consistency across all projects. Do not write spec sections by hand — invoke the skill.
 
 **Key Principles:**
 - SPEC is source of truth - if it's not in the SPEC, it doesn't exist

@@ -1,5 +1,7 @@
 ## Git Workflow
 
+**Applies to:** `~/Personal/*` and `~/Development/ai/*` projects. Does NOT apply to `~/Development/thanx/*` (those follow Thanx conventions).
+
 **Every turn (chunk of completed work) gets committed.**
 
 **Process:**
@@ -14,6 +16,7 @@
 - `"Create interaction logging table in Supabase"`
 
 **Repository Structure:**
+- Each application in `~/Personal/applications/` is its own git repo
 - Commit frequently, push when ready
 - Tag releases: `v1.0.0`, `v1.1.0`, etc.
 
@@ -22,5 +25,5 @@ All spec-driven repos have a pre-commit hook that blocks commits when behavioral
 
 When creating a new repo, install the hook:
 ```bash
-ln -sf <path-to-spec-check-hook.sh> .git/hooks/pre-commit
+ln -sf {{PROJECT_DIR}}/scripts/spec-check-hook.sh .git/hooks/pre-commit
 ```

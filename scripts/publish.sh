@@ -66,6 +66,19 @@ for f in "${BIN_PUBLISH[@]}"; do
   fi
 done
 
+# Copy claude-rules snippets (global only — project snippets are personal)
+RULES_SOURCE="$HOME/Personal/AI-RON/claude-rules/snippets/global"
+RULES_DEST="$(cd "$(dirname "$0")/.." && pwd)/claude-rules/snippets/global"
+
+rm -rf "$RULES_DEST"
+mkdir -p "$RULES_DEST"
+rules_copied=0
+for f in "$RULES_SOURCE"/*.md; do
+  cp "$f" "$RULES_DEST/$(basename "$f")"
+  rules_copied=$((rules_copied + 1))
+done
+echo "  copy: $rules_copied rule snippets"
+
 # Copy hooks
 HOOKS_SOURCE="$HOME/Personal/AI-RON/scripts"
 HOOKS_DEST="$(cd "$(dirname "$0")/.." && pwd)/hooks"
@@ -87,4 +100,4 @@ for f in "${HOOKS_PUBLISH[@]}"; do
 done
 
 echo ""
-echo "Published $copied skills ($skipped excluded), $bin_copied bin files, $hooks_copied hooks"
+echo "Published $copied skills ($skipped excluded), $rules_copied rules, $bin_copied bin files, $hooks_copied hooks"

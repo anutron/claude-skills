@@ -164,12 +164,16 @@ See [claude-rules/README.md](claude-rules/README.md) for setup.
 
 | Snippet | Description |
 |---------|-------------|
-| `010-claudemd-management` | How CLAUDE.md files are compiled from snippets |
-| `020-plan-formatting` | Markdown formatting requirements for structured output |
-| `030-interaction-prefs` | Question-by-question and step-by-step interaction patterns |
+| `005-claudemd-management` | How CLAUDE.md files are compiled from snippets |
+| `010-plan-formatting` | Markdown formatting requirements for structured output |
+| `020-interaction-prefs` | Question-by-question and step-by-step interaction patterns |
 | `040-plan-execution-handoff` | What to do after plan approval |
+| `040-tech-stack` | Standard tech stack for new applications |
 | `050-git-workflow` | Commit conventions and pre-commit hooks |
+| `052-worktree-location` | Place git worktrees in `.claude/worktree/` within spec-driven projects |
+| `055-session-topics` | Set status line topics for session identification |
 | `060-plannotator-spec-review` | Interactive spec review via Plannotator |
+| `065-airon-develop-override` | Use `/airon-develop` instead of `/brainstorm` for creative work |
 | `070-testing` | Test-driven development defaults |
 | `080-spec-driven-dev` | Spec-first development process |
 | `090-plan-archiving` | Archive approved plans to `specs/plans/` |

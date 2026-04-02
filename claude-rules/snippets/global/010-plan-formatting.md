@@ -1,6 +1,6 @@
 ## Markdown Formatting Requirements
 
-All markdown you produce — plans, reports, codebase gap summaries, agent outputs, specs, any structured text — MUST use proper markdown to ensure correct rendering.
+All markdown you produce — plans, reports, codebase gap summaries, agent outputs, specs, any structured text — MUST use proper markdown to ensure correct rendering in Plannotator.
 
 ### Line Breaks
 
@@ -11,12 +11,20 @@ All markdown you produce — plans, reports, codebase gap summaries, agent outpu
 - Put a **blank line** before and after every heading, list, code block, and paragraph
 - Each distinct piece of information gets its own bullet or paragraph — never pack multiple facts onto one line separated only by spaces
 
-**Bad** (collapses into one paragraph):
+**Bad** (all on one line — collapses into one paragraph):
 ```markdown
 **File:** impl.go **Friction:** Race condition **Status:** Fixed
 ```
 
-**Good** (renders correctly):
+**Also bad** (separate lines but no blank lines — ALSO collapses into one paragraph):
+```markdown
+**Type:** troubleshooting
+**Why:** The migration broke prod
+**Before:** Old approach
+**After:** New approach
+```
+
+**Good** (bullet list — each field renders on its own line):
 ```markdown
 - **File:** `impl.go`
 - **Friction:** Race condition
