@@ -118,12 +118,13 @@ After each agent completes:
 
 1. **Read the agent's result** (returned automatically)
 2. **Verify completion:** Run `git status` and `git log --oneline -3` to confirm commits landed
-3. **Report progress to user:**
+3. **Check for stage overlap:** Diff the changed files against remaining stages. If an agent completed work belonging to a later stage (e.g., implementation needed to pass tests), mark that later stage as done and skip dispatching it.
+4. **Report progress to user:**
    ```
    ✓ Stage {N}: {name} — Complete
      {1-line summary of what the agent did}
    ```
-4. **If the agent reported a blocker:** Present it to the user and ask how to proceed before continuing
+5. **If the agent reported a blocker:** Present it to the user and ask how to proceed before continuing
 
 ---
 
