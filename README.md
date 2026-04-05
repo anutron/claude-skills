@@ -116,17 +116,26 @@ This works well for small-to-medium codebases. For large-scale applications, you
 | Skill | Description |
 |-------|-------------|
 | [brainstorm](skills/brainstorm/SKILL.md) | Explore intent, design the solution, write a strategic plan, and hand off to execution |
-| [dev](skills/dev/SKILL.md) | Multi-agent iterative development with parallel testing and code review |
-| [execute-plan](skills/execute-plan/SKILL.md) | Execute a plan with a team of agents, delegating to spare tokens in the main thread |
+| [execute-plan](skills/execute-plan/SKILL.md) | Execute a plan with agent-driven development — worktree isolation, TDD, two-stage review, and native Task dependencies for parallel execution |
 | [fixit](skills/fixit/SKILL.md) | Fire-and-forget bug fix — backgrounds an agent in a worktree to fix and merge back |
 | [test](skills/test/SKILL.md) | Intelligent test runner that targets changed code and identifies coverage gaps |
 | [debug](skills/debug/SKILL.md) | Multi-agent competing hypotheses debugging |
-| [bugbash](skills/bugbash/SKILL.md) | Interactive QA — report bugs conversationally, agents fix them in parallel using worktrees |
+| [bugbash](skills/bugbash/SKILL.md) | Interactive QA — report bugs conversationally, agents fix them in parallel using agent-driven-development |
 | [guard](skills/guard/SKILL.md) | Pre-commit safety check for secrets, security antipatterns, and test breakage |
 | [unstaged](skills/unstaged/SKILL.md) | Show uncommitted changes grouped by logical commit themes |
 | [close-worktree](skills/close-worktree/SKILL.md) | Close a git worktree and merge it back to the main branch |
 | [review](skills/review/SKILL.md) | Quick code review shorthand — reviews current changes or a PR number |
 | [rereview](skills/rereview/SKILL.md) | Re-review with fresh eyes — zero regressions, slow and thorough |
+
+### Discipline & Orchestration
+
+These skills describe how agents should think and work. They're loaded by reference when other skills need them — not typically invoked directly.
+
+| Skill | Description |
+|-------|-------------|
+| [agent-driven-development](skills/agent-driven-development/SKILL.md) | Orchestration pattern — worktree isolation, TDD discipline, and two-stage review. Referenced by execute-plan, fixit, and bugbash |
+| [test-driven-development](skills/test-driven-development/SKILL.md) | Red-green-refactor discipline — no production code without a failing test first |
+| [verification-before-completion](skills/verification-before-completion/SKILL.md) | Evidence before claims — run verification commands and confirm output before claiming success |
 
 ### Git & PR
 

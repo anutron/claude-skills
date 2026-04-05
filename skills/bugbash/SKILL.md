@@ -1,11 +1,13 @@
 ---
 name: bugbash
-description: Interactive QA session — report bugs conversationally, agents fix them in parallel using worktrees.
+description: Interactive QA session — report bugs conversationally, agents fix them in parallel using agent-driven-development pattern.
 ---
 
 # Bug Bash
 
-Run an interactive QA session where you report bugs and a team of up to 3 agents fixes them in parallel. Each agent works in an isolated git worktree. Fixes auto-merge back to the current branch.
+Run an interactive QA session where you report bugs and a team of agents fixes them in parallel. Each bug becomes a task tracked via `TaskCreate`, gets its own worktree, and follows the agent-driven-development pattern. Fixes auto-merge back to the current branch.
+
+**Execution pattern:** Each bug fix follows agent-driven-development pattern. Read `skills/agent-driven-development/SKILL.md`.
 
 ## Prerequisites
 
@@ -181,6 +183,16 @@ Do NOT add a "Fix Approach" section. The agent will figure it out.
 
 **Note:** No `status:` field in frontmatter — the folder is the status.
 
+### Create Task
+
+After writing the bug file, create a task to track it:
+
+```
+TaskCreate("Fix BUG-<NNN>: <title>", description: "<1-line summary>")
+```
+
+If a bug depends on another bug finishing first (e.g., same-file overlap), use `addBlockedBy` to express the dependency. Independent bugs have no blockers and can execute in parallel.
+
 ### Step 5: Investigate or Fast-Path
 
 **Clear tier bugs skip investigation.** If the user named files, described expected vs actual behavior, and the fix is likely isolated (cosmetic, config, single-file), go directly to Step 6 (Dispatch). The investigation gate exists to catch dependency conflicts — Clear tier bugs have low conflict risk by definition.
@@ -262,12 +274,12 @@ mv .bug-bash/todo/bug-<NNN>.md .bug-bash/in-progress/
 ### Create Worktree
 
 ```bash
-git worktree add -b bug-bash/BUG-<NNN> .claude/worktrees/bug-bash-<NNN> HEAD
+git worktree add -b bug-bash/BUG-<NNN> .claude/worktree/bug-bash-<NNN> HEAD
 ```
 
 If branch name exists (from a previous failed attempt), remove it first:
 ```bash
-git worktree remove .claude/worktrees/bug-bash-<NNN> --force 2>/dev/null
+git worktree remove .claude/worktree/bug-bash-<NNN> --force 2>/dev/null
 git branch -D bug-bash/BUG-<NNN> 2>/dev/null
 ```
 
@@ -276,12 +288,14 @@ git branch -D bug-bash/BUG-<NNN> 2>/dev/null
 If other bug fixes have been merged to the main branch since the worktree was created, rebase to pick up those changes:
 
 ```bash
-git -C .claude/worktrees/bug-bash-<NNN> rebase main
+git -C .claude/worktree/bug-bash-<NNN> rebase main
 ```
 
 This prevents agents from working against stale code that references APIs changed by earlier bug fixes.
 
 ### Spawn Agent
+
+Each bug fix follows the agent-driven-development pattern. The implementer agent follows TDD (`skills/test-driven-development/SKILL.md`), self-reviews per verification-before-completion (`skills/verification-before-completion/SKILL.md`), and references debugging docs for root cause analysis.
 
 Use the Agent tool with `run_in_background: true` and `mode: "bypassPermissions"`:
 
@@ -293,6 +307,13 @@ Use the Agent tool with `run_in_background: true` and `mode: "bypassPermissions"
 - Working directory: <worktree path>
 - Branch: bug-bash/BUG-<NNN>
 - Bug spec: <absolute path to .bug-bash/in-progress/bug-<NNN>.md>
+
+### Execution Pattern
+This bug fix follows agent-driven-development. Read `skills/agent-driven-development/SKILL.md`.
+
+For debugging, also read:
+- `skills/debug/root-cause-tracing.md` — systematic hypothesis-driven debugging
+- `skills/debug/defense-in-depth.md` — making fixes robust against related failures
 
 ### Bug Description
 <full contents of bug.md Description section>
@@ -327,15 +348,17 @@ No spec management required.
 
 ### Instructions
 1. Read the bug spec, any attachments, and the investigation findings
-2. Read the project's CLAUDE.md for architecture conventions and testing requirements
-3. Explore the codebase to understand the problem (investigation gives you a head start)
-4. **Check dependencies** — if the investigation flagged callers or risks, verify your fix doesn't break them
-5. If this is a spec-aware project (see above), follow spec-first order
-6. Otherwise: implement the fix directly
-7. **Run targeted tests** for the packages/files you changed (e.g., `go test ./internal/tui/...`, `npm test -- --testPathPattern=sidebar`). Do NOT run the full project test suite — the coordinator runs that after merge. If you can't identify targeted tests, run the full suite as a fallback.
-8. **Write resolution to the bug file** (see Resolution Documentation below)
-9. Commit your changes with message: "Fix BUG-<NNN>: <title>"
-10. If you hit uncertainty that requires a human decision, STOP and report (see Blocked Bugs below)
+2. Read the debugging docs listed above for systematic root cause analysis
+3. Read the project's CLAUDE.md for architecture conventions and testing requirements
+4. Explore the codebase to understand the problem (investigation gives you a head start)
+5. **Check dependencies** — if the investigation flagged callers or risks, verify your fix doesn't break them
+6. If this is a spec-aware project (see above), follow spec-first order
+7. Otherwise: implement the fix directly
+8. **Run targeted tests** for the packages/files you changed (e.g., `go test ./internal/tui/...`, `npm test -- --testPathPattern=sidebar`). Do NOT run the full project test suite — the coordinator runs that after merge. If you can't identify targeted tests, run the full suite as a fallback.
+9. Self-review per `skills/verification-before-completion/SKILL.md` before declaring done
+10. **Write resolution to the bug file** (see Resolution Documentation below)
+11. Commit your changes with message: "Fix BUG-<NNN>: <title>"
+12. Report status: DONE | DONE_WITH_CONCERNS | NEEDS_CONTEXT | BLOCKED
 
 ### Resolution Documentation
 Before committing, append these sections to the bug file:
@@ -371,9 +394,16 @@ Before committing, append these sections to the bug file:
 
 When a background agent reports back:
 
-### Step 1: Read Result
+### Step 1: Handle Status
 
-The agent's result message will indicate success or failure.
+Process the agent's reported status per agent-driven-development:
+
+- **DONE** -- proceed to merge
+- **DONE_WITH_CONCERNS** -- read concerns. If correctness/scope issues, re-dispatch with fix instructions. If observations, note for final report and proceed to merge.
+- **NEEDS_CONTEXT** -- provide missing context from investigation findings or codebase and re-dispatch
+- **BLOCKED** -- follow escalation: provide more context and re-dispatch, then try a more capable model, then break the task down, then park and note in final report
+
+Execution is autonomous -- the controller handles all statuses internally without asking the user.
 
 ### Step 2: Merge (on success)
 
@@ -393,7 +423,7 @@ git merge bug-bash/BUG-<NNN> --no-edit
   ```
 - Clean up:
   ```bash
-  git worktree remove .claude/worktrees/bug-bash-<NNN> --force
+  git worktree remove .claude/worktree/bug-bash-<NNN> --force
   git branch -D bug-bash/BUG-<NNN>
   ```
 - Report to user:
@@ -412,7 +442,7 @@ git merge bug-bash/BUG-<NNN> --no-edit
 - Report to user:
   ```
   BUG-<NNN> conflict: <title>
-    Worktree preserved at .claude/worktrees/bug-bash-<NNN> for manual resolution.
+    Worktree preserved at .claude/worktree/bug-bash-<NNN> for manual resolution.
     Conflicting files: <list>
   ```
 
@@ -447,10 +477,12 @@ If the agent reports it's blocked (needs a decision from the user):
 
 **To unblock:** User provides the decision. Coordinator updates the bug file with the answer, moves it back to `todo/`, and re-dispatches with the additional context.
 
-### Step 5: Free Slot and Dispatch Next
+### Step 5: Free Slot, Mark Task Complete, and Dispatch Next
 
 - Remove from slots
+- Mark the task complete in the native Task system -- this auto-unblocks any bugs that were waiting on this one (e.g., same-file overlap dependencies)
 - If `todo/` has pending bugs, dispatch the next one
+- Multiple bugs can execute in parallel -- each in its own worktree, each with its own agent. Dispatch all unblocked bugs simultaneously up to the slot limit.
 
 ---
 

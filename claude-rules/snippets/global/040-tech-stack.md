@@ -44,7 +44,7 @@
 ```
 
 ### Legacy Python Applications
-Existing apps (`fitbit-cli`, `memory-mcp`, `things-mcp`) use Python/Node and stay as-is. The `/dev` skill and all tooling must work with these codebases. When modifying legacy apps, use their existing stack -- do not migrate them.
+Existing apps (`fitbit-cli`, `memory-mcp`, `things-mcp`) use Python/Node and stay as-is. All tooling must work with these codebases. When modifying legacy apps, use their existing stack -- do not migrate them.
 
 ### When to Use What
 - **New app or service** → Thanx stack (Rails + Next.js monorepo)

@@ -138,6 +138,8 @@ Use `/spec-writer` if available to produce spec text. Commit the document immedi
 
 Fix issues inline. No need to re-review -- just fix and move on.
 
+**Optional: Spec document reviewer** -- For complex brainstorm docs (multiple subsystems, cross-cutting concerns, or significant architectural decisions), consider dispatching a spec reviewer subagent using the prompt template at `skills/brainstorm/spec-document-reviewer-prompt.md`. Skip this for straightforward docs.
+
 **User review offer** -- via `AskUserQuestion`:
 
 > "Brainstorm doc written to `<path>` and committed. Want to review it before I move to planning?"
@@ -186,9 +188,13 @@ Write tests from the updated specs before any implementation. Tests must fail fi
 
 ### Stage 3: <First vertical slice>
 
-<What this stage delivers -- one complete end-to-end path. What files/areas it touches. Done criteria. Dependencies on prior stages.>
+**Depends on:** Stage 2
+
+<What this stage delivers -- one complete end-to-end path. What files/areas it touches. Done criteria.>
 
 ### Stage N: <Next vertical slice>
+
+**Depends on:** Stage 3 (or "Stage 2" if independent of Stage 3 -- stages with the same dependency can run in parallel)
 
 <Same structure. Each stage is a vertical slice delivering one complete path, not a horizontal layer.>
 ```
@@ -200,6 +206,7 @@ Key principles for stages:
 - **Vertical slices** -- each stage delivers one complete end-to-end path, not horizontal layers
 - **Prove-It Pattern** -- tests must fail first, proving the behavioral gap exists, then implement to make them pass
 - **Chesterton's Fence** -- understand why existing code exists before changing or removing it
+- **Dependencies** -- each stage should note which prior stages it depends on, so execute-plan can create a Task dependency graph. Identify which stages can run in parallel (independent files/subsystems) vs must be sequential
 
 Commit the plan immediately after writing.
 

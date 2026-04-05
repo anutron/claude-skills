@@ -1,27 +1,18 @@
 ---
 name: execute-plan
-description: Execute a plan with a team of agents, sparing tokens in the main thread by delegating as much as possible. Takes a plan URL or file path as argument.
+description: "Execute a plan with agent-driven development — worktree isolation, TDD discipline, two-stage review, and native Task dependencies for parallel execution."
+user-invocable: true
 ---
 
-# Execute Plan with Agent Team
+# Execute Plan
 
-Orchestrate a team of agents to execute a plan document. The main thread acts as a thin coordinator — reading the plan, breaking it into stages, and dispatching each stage to an agent. All heavy lifting (code exploration, implementation, testing) happens in agents.
-
-## Prerequisites
-
-Agent teams must be enabled in Claude Code settings:
-
-```
-CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
-```
-
-If agent teams are not enabled, report: "Agent teams required. Add `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` to your Claude Code settings (env section)." and stop.
+Orchestrate plan execution using the agent-driven-development pattern. The main thread acts as a thin coordinator — parsing the plan into a task dependency graph, dispatching agents in worktrees, and merging results. All implementation, review, and testing happens in agents.
 
 ## Arguments
 
 - `$ARGUMENTS` - Required: URL or file path to the plan to execute
 
-If no arguments are provided, find the most recently modified plan in `~/.claude/plans/` and respond with ONLY this message (no other actions):
+If no arguments are provided, find the most recently modified plan in `~/Personal/AI-RON/specs/plans/` and respond with only this message (no other actions):
 
 ```
 Your plan is ready. Run /clear and then:
@@ -29,7 +20,7 @@ Your plan is ready. Run /clear and then:
 /execute-plan <path-to-most-recent-plan>
 ```
 
-This ensures execution starts with a fresh context window. Do NOT proceed with execution — just print the message and stop.
+This ensures execution starts with a fresh context window. Do not proceed with execution — just print the message and stop.
 
 ## Context
 
@@ -40,128 +31,125 @@ This ensures execution starts with a fresh context window. Do NOT proceed with e
 
 ---
 
-## Phase 0: Load and Parse the Plan
+## Phase 0: Load and Parse
 
 1. **Resolve the plan source:**
-   - If `$ARGUMENTS` is a file path → Read it directly
-   - If `$ARGUMENTS` is a URL → Fetch it with WebFetch
-   - If `$ARGUMENTS` is a plan name without path → Look in `~/Personal/AI-RON/specs/plans/`
+   - If `$ARGUMENTS` is a file path, read it directly
+   - If `$ARGUMENTS` is a URL, fetch it with WebFetch
+   - If `$ARGUMENTS` is a plan name without path, look in `~/Personal/AI-RON/specs/plans/`
 
 2. **Parse the plan into stages.** Plans typically have numbered sections, phases, or steps. Extract:
    - **Stages**: Ordered list of discrete work chunks
-   - **Dependencies**: Which stages depend on others (sequential vs parallelizable)
+   - **Dependencies**: Which stages depend on others (explicit "depends on stage N" or implicit from ordering)
    - **Scope**: Files, directories, and repos each stage touches
 
-3. **Present a brief execution summary to the user:**
-
-   ```
-   ## Execution Plan
-
-   Loaded: {plan name/path}
-   Stages: {N}
-
-   1. {Stage name} — {1-line description}
-   2. {Stage name} — {1-line description}
-   ...
-
-   Parallel opportunities: {which stages can run concurrently}
-   Estimated agents needed: {count}
-   ```
-
-   **Immediately proceed to execution — do not wait for user approval.** The user invoked this skill intentionally; asking "Proceed?" wastes a round-trip.
+3. **Build a dependency graph.** For each stage, determine:
+   - Which other stages must complete first (blockers)
+   - Which stages are independent and can run in parallel
+   - Dependency signals: explicit mentions ("after stage 2"), shared file scope, or logical ordering (tests before integration)
 
 ---
 
-## Phase 1: Execute Stages
+## Phase 1: Create Task Graph
 
-For each stage (or group of parallel stages):
-
-### Dispatch to Agent
-
-Spawn an agent using the Agent tool with a detailed prompt containing:
+Use native `TaskCreate` with `addBlockedBy` to build the full dependency graph upfront. Every stage becomes a task. Independent stages share no blockers and become eligible simultaneously.
 
 ```
-## Stage {N}: {Stage Name}
-
-### Context
-- Plan: {plan name}
-- Working directory: {path}
-- Branch: {branch}
-
-### Instructions
-{Full text of this stage from the plan}
-
-### Scope
-Files to read first: {list from plan}
-Files to create/modify: {list from plan}
-
-### Constraints
-- Follow existing codebase patterns and conventions
-- Run tests after implementation if test infrastructure exists
-- Commit completed work with a descriptive message referencing the plan stage
-- If you encounter a blocker, report it clearly — do not guess or work around it silently
-
-### Done Criteria
-{What "done" looks like for this stage, extracted from the plan}
+TaskCreate("Stage 1: Update specs", ...)
+TaskCreate("Stage 2: Write failing tests", ..., addBlockedBy: [stage-1-id])
+TaskCreate("Stage 3: Implement auth module", ..., addBlockedBy: [stage-2-id])
+TaskCreate("Stage 4: Implement API routes", ..., addBlockedBy: [stage-2-id])  <- parallel with stage 3
+TaskCreate("Stage 5: Integration tests", ..., addBlockedBy: [stage-3-id, stage-4-id])
 ```
 
-### Coordination Rules
+Present a brief execution summary:
 
-- **Independent stages** → Spawn agents in parallel (multiple Agent calls in one message)
-- **Dependent stages** → Wait for the dependency to complete, then spawn the next
-- **Large stages** → Use `subagent_type` matching the work (e.g., `"feature-dev:code-architect"` for design, general-purpose for implementation)
-- **Main thread stays thin** → Do NOT read implementation files yourself. Only read agent results and git status/diff to verify completion.
+```
+## Execution Plan
 
-### Between Stages
+Loaded: {plan name/path}
+Stages: {N}
 
-After each agent completes:
+1. {Stage name} — {1-line description}
+2. {Stage name} — {1-line description} [blocked by: 1]
+3. {Stage name} — {1-line description} [blocked by: 2]
+4. {Stage name} — {1-line description} [blocked by: 2]  <- parallel with 3
+5. {Stage name} — {1-line description} [blocked by: 3, 4]
 
-1. **Read the agent's result** (returned automatically)
-2. **Verify completion:** Run `git status` and `git log --oneline -3` to confirm commits landed
-3. **Check for stage overlap:** Diff the changed files against remaining stages. If an agent completed work belonging to a later stage (e.g., implementation needed to pass tests), mark that later stage as done and skip dispatching it.
-4. **Report progress to user:**
-   ```
-   ✓ Stage {N}: {name} — Complete
-     {1-line summary of what the agent did}
-   ```
-5. **If the agent reported a blocker:** Present it to the user and ask how to proceed before continuing
+Parallel opportunities: {which stages can run concurrently}
+```
+
+Immediately proceed to execution — do not wait for user approval. The user invoked this skill intentionally.
 
 ---
 
-## Phase 2: Verification
+## Phase 2: Execute
 
-After all stages complete:
+For each unblocked task (or group of simultaneously unblocked tasks):
 
-1. **Spawn a verification agent** to do a holistic check:
+### Worktree Setup
 
-   ```
-   Review the recent commits implementing this plan:
+1. Create a worktree at `.claude/worktree/<task-slug>/`
+2. If `.claude/worktree/` does not exist yet, create it and add it to `.gitignore`
 
-   PLAN:
-   {full plan text}
+### Dispatch Implementer
 
-   RECENT COMMITS:
-   {git log --oneline showing all commits from this session}
+Spawn a fresh agent in the worktree following the agent-driven-development loop. The agent prompt includes:
 
-   DIFF FROM START:
-   {git diff from before execution started}
+- The full stage text from the plan
+- File scope (what to read, what to create/modify)
+- Done criteria extracted from the plan
+- Reference to TDD discipline (`skills/test-driven-development/SKILL.md`)
+- Reference to self-verification (`skills/verification-before-completion/SKILL.md`)
+- For bug-fix stages: reference to `skills/debug/root-cause-tracing.md` and `skills/debug/defense-in-depth.md`
 
-   Check:
-   1. Are all plan stages addressed?
-   2. Do the changes match the plan's intent?
-   3. Are there any obvious gaps or issues?
-   4. Do tests pass?
+The implementer reports one of: `DONE`, `DONE_WITH_CONCERNS`, `NEEDS_CONTEXT`, `BLOCKED`.
 
-   Report: list of stages with status (DONE / PARTIAL / MISSING) and any concerns.
-   ```
+### Handle Status
 
-2. **Present the verification results to the user.**
+Handle all statuses internally per the autonomous execution rules (see below). Never ask the user.
+
+### Two-Stage Review
+
+After the implementer finishes:
+
+1. **Dispatch spec reviewer** — checks implementation matches the plan's intent for this stage. Uses the prompt template at `skills/agent-driven-development/spec-reviewer-prompt.md`.
+2. If issues found: implementer fixes, spec reviewer re-reviews. Loop until clean.
+3. **Dispatch code quality reviewer** — checks implementation is well-built. Uses the prompt template at `skills/agent-driven-development/code-quality-reviewer-prompt.md`.
+4. If issues found: implementer fixes, quality reviewer re-reviews. Loop until clean.
+
+Spec compliance must pass before code quality review begins.
+
+### Merge
+
+After both reviews pass:
+
+1. Switch to the main working branch
+2. Merge the worktree branch
+3. If textual conflicts: resolve and run the full test suite
+4. If tests fail after merge (semantic conflict): re-dispatch the task against the updated base
+5. Clean up the worktree branch and directory
+
+### Parallel Execution
+
+Independent tasks (no dependency between them) run in parallel:
+
+- Each gets its own worktree
+- Each gets its own implementer agent
+- Reviews can also run in parallel across different tasks
+- Merges happen sequentially (first-done merges first; subsequent tasks rebase if needed)
+
+### Task Completion
+
+Mark each task complete in the native Task system. Dependents auto-unblock and become eligible for dispatch.
+
+If an agent completed work belonging to a later stage (overlap detected via file diff), mark that later stage as done and skip dispatching it.
 
 ---
 
 ## Phase 3: Summary
 
-Produce a final summary:
+Produce one final report after all tasks complete:
 
 ```markdown
 ## Plan Execution Complete
@@ -172,39 +160,62 @@ Produce a final summary:
 ### Stages Executed
 | # | Stage | Status | Summary |
 |---|-------|--------|---------|
-| 1 | {name} | ✓ / ⚠ / ✗ | {1-line} |
-| 2 | {name} | ✓ / ⚠ / ✗ | {1-line} |
+| 1 | {name} | Done | {1-line} |
+| 2 | {name} | Done | {1-line} |
+| 3 | {name} | Parked | {reason} |
 
 ### Commits
 {git log --oneline for all commits made during execution}
 
-### Verification
-{verification agent's assessment}
+### Quality Notes
+{Any DONE_WITH_CONCERNS observations, reviewer feedback worth noting}
 
-### Issues / Follow-ups
-{any blockers, partial completions, or suggested next steps}
+### Concerns
+{Parked tasks with reasons, blockers that could not be resolved, semantic conflicts encountered}
 ```
 
 ---
 
-## Failure Handling
+## Autonomous Execution
 
-| Failure | Action |
-|---------|--------|
-| Plan file not found | List available plans and ask user to choose |
-| Agent fails or errors | Report to user, ask whether to retry or skip |
-| Stage produces no commits | Flag as potentially incomplete, ask user |
-| Blocker reported by agent | Pause execution, present to user, wait for guidance |
-| Git conflicts between parallel agents | Stop parallel execution, resolve conflicts, continue sequentially |
+Once execution starts (phases 1-3), the controller never asks the user anything. Handle all statuses internally:
+
+- **DONE** — proceed to spec review
+- **DONE_WITH_CONCERNS** — read the concerns. If about correctness or scope, address before review. If observations ("this file is getting large"), note for the final report and proceed to review.
+- **NEEDS_CONTEXT** — provide the missing context from the plan, specs, or codebase and re-dispatch
+- **BLOCKED** — escalation ladder:
+  1. Provide more context and re-dispatch
+  2. Re-dispatch with a more capable model
+  3. Break the task into smaller pieces
+  4. Park the task and note it in the final report
+
+One summary at the end. No mid-execution interruptions.
+
+## Model Selection
+
+Use the least powerful model that can handle each role:
+
+| Signal | Model |
+|--------|-------|
+| Touches 1-2 files with complete spec | haiku |
+| Touches multiple files with integration concerns | sonnet |
+| Requires design judgment or broad codebase understanding | default (most capable) |
+| Review roles (spec compliance, code quality) | default (most capable) |
 
 ---
 
-## Token Conservation Rules
+## Token Conservation
 
-The main thread's job is **coordination only**. Follow these strictly:
+The main thread's job is coordination only:
 
-1. **Never read source code files yourself** — agents do that
-2. **Never write or edit code yourself** — agents do that
-3. **Only read**: plan files, agent results, git status/log/diff
-4. **Keep messages to agents detailed** so they don't need to ask follow-ups
-5. **Summarize, don't echo** — when reporting agent results to the user, summarize in 1-2 lines per stage
+1. Never read source code files yourself — agents do that
+2. Never write or edit code yourself — agents do that
+3. Only read: plan files, agent results, git status/log/diff
+4. Keep messages to agents detailed so they don't need follow-ups
+5. Summarize, don't echo — when reporting results, summarize in 1-2 lines per stage
+
+---
+
+## Reference
+
+Execution follows the agent-driven-development pattern. Read `skills/agent-driven-development/SKILL.md` for the full loop, and dispatch agents using the prompt templates in `skills/agent-driven-development/`.

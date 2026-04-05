@@ -58,7 +58,7 @@ After the relevant section, print all remaining skills grouped by category. Skip
 ```
 OTHER SKILLS
 
-  Development:  /dev  /debug  /test  /guard
+  Development:  /debug  /test  /guard
   Review:       /review  /rereview  /devils-advocate
   Git & PR:     /pr  /merge  /changelog  /pr-dashboard
   Session:      /handoff  /improve  /promote  /list-skills

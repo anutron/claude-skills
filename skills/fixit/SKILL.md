@@ -81,19 +81,30 @@ Include the spec file in your commit.
 No spec management required.
 </if>
 
+### Debugging References
+Read these before investigating:
+- `skills/debug/root-cause-tracing.md` — systematic hypothesis-driven debugging
+- `skills/debug/defense-in-depth.md` — making fixes robust against related failures
+
 ### Instructions
-1. Explore the codebase to understand the problem
+Implementation follows agent-driven-development pattern for a single task. Read `skills/agent-driven-development/SKILL.md`.
+
+1. Explore the codebase to understand the problem (use root-cause-tracing approach)
 2. If this is a spec-aware project (see above), follow spec-first order
 3. Otherwise: implement the fix directly
-4. Run tests if test infrastructure exists (check Makefile, README, package.json, etc.)
-5. Commit with message: "Fix: <short description>"
-6. If you can't figure it out, commit nothing and report what you tried
+4. Follow TDD discipline per `skills/test-driven-development/SKILL.md`
+5. Self-review per `skills/verification-before-completion/SKILL.md`
+6. Run tests if test infrastructure exists (check Makefile, README, package.json, etc.)
+7. Commit with message: "Fix: <short description>"
+8. If you can't figure it out, commit nothing and report what you tried
+9. Report status: DONE | DONE_WITH_CONCERNS | BLOCKED
 
 ### Constraints
 - Work ONLY in your worktree directory
 - Follow existing codebase patterns
 - Keep the fix minimal — don't refactor surrounding code
 - If tests fail after your fix, investigate and resolve
+- Apply defense-in-depth: make the fix robust, not just sufficient
 ```
 
 ### 4. Confirm to User
@@ -112,7 +123,16 @@ Do NOT wait for the agent. Return control to the user immediately.
 
 When the background agent reports back:
 
-### Success Path
+### Success Path — Two-Stage Review
+
+Before merging, run both reviews from agent-driven-development (see prompt templates in `skills/agent-driven-development/`):
+
+1. **Spec reviewer** — dispatch with `spec-reviewer-prompt.md`. Checks the fix matches spec intent. If issues found, implementer fixes, reviewer re-reviews until clean.
+2. **Code quality reviewer** — dispatch with `code-quality-reviewer-prompt.md`. Checks code quality. Same fix/re-review loop.
+
+Spec compliance must pass before code quality review begins.
+
+Once both reviews pass:
 
 ```bash
 git checkout <original-branch>
