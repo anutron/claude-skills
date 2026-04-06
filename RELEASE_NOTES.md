@@ -1,3 +1,12 @@
+## v1.3.0 — 2026-04-05
+
+Spec-audit subagent enforcement.
+
+**Updated skills**
+- `spec-audit` — Phase 2 analysis now requires `Agent` tool for parallel module dispatch (no more inline work). Phase 3 gap resolution references `agent-driven-development` pattern for worktree isolation and proper subagent dispatch.
+
+---
+
 ## v1.2.0 — 2026-04-05
 
 Session topic enforcement and skill updates.

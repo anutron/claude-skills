@@ -249,7 +249,7 @@ Use `AskUserQuestion` to let the user choose scope. Record their choice.
 
 For the scoped set of files, **group by module directory** (e.g., `internal/agent/`, `internal/builtin/commandcenter/`). Each agent receives all files in a module plus their mapped spec sections. This produces coherent per-module reports and is far more efficient than per-file dispatch.
 
-Dispatch agents in parallel batches of 3-5. For large modules (15+ files), keep them as single agents — they share spec context and can identify cross-file patterns. For tiny modules (1-3 files), combine related modules into a single agent.
+**Use the `Agent` tool** to dispatch each module as a subagent. Launch in parallel batches of 3-5 (multiple `Agent` calls in a single message). Analysis agents are read-only so they don't need worktree isolation — but they must be subagents, not inline work. For large modules (15+ files), keep them as single agents — they share spec context and can identify cross-file patterns. For tiny modules (1-3 files), combine related modules into a single agent.
 
 Each agent receives:
 
@@ -411,6 +411,8 @@ Module reports: specs/audits/{date}/modules/
 ---
 
 ## Phase 3: Resolution (optional)
+
+**When resolving gaps (options 2 and 3 below), follow the `agent-driven-development` pattern** (`skills/agent-driven-development/SKILL.md`): worktree-per-task isolation, subagent dispatch via the `Agent` tool, and merge back. Each gap or gap-cluster becomes a task. Independent gaps run in parallel worktrees.
 
 After displaying the summary, present options via `AskUserQuestion`:
 
