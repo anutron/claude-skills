@@ -579,9 +579,11 @@ If the build fails, report the error and stop — don't proceed with a stale bui
 
 ### Step 2: Generate Report
 
-Run the report generator script:
+Run the report generator script. Find it by checking these locations in order: `.claude/skills/bugbash/generate-report.sh` (project-local), `~/.claude/skills/bugbash/generate-report.sh` (global symlink).
+
 ```bash
-/Users/aaron/.claude/skills/bugbash/generate-report.sh <project-root>
+SCRIPT=$( [ -x .claude/skills/bugbash/generate-report.sh ] && echo .claude/skills/bugbash/generate-report.sh || echo ~/.claude/skills/bugbash/generate-report.sh )
+"$SCRIPT" <project-root>
 ```
 
 This parses all `merged/` bug files and writes `.bug-bash/report.md` with title, fix summary, test guidance, and files changed for each bug. Runs in under a second.

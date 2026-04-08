@@ -12,7 +12,7 @@ Orchestrate plan execution using the agent-driven-development pattern. The main 
 
 - `$ARGUMENTS` - Required: URL or file path to the plan to execute
 
-If no arguments are provided, find the most recently modified plan in `~/Personal/AI-RON/specs/plans/` and respond with only this message (no other actions):
+If no arguments are provided, find the most recently modified plan in the project's `specs/plans/` directory and respond with only this message (no other actions):
 
 ```
 Your plan is ready. Run /clear and then:
@@ -27,7 +27,7 @@ This ensures execution starts with a fresh context window. Do not proceed with e
 - Current branch: !`git branch --show-current`
 - Git status: !`git status --short`
 - Project root: !`pwd`
-- Available plans: !`ls -t ~/Personal/AI-RON/specs/plans/ 2>/dev/null | head -10`
+- Available plans: !`ls -t specs/plans/ 2>/dev/null | head -10`
 
 ---
 
@@ -36,7 +36,7 @@ This ensures execution starts with a fresh context window. Do not proceed with e
 1. **Resolve the plan source:**
    - If `$ARGUMENTS` is a file path, read it directly
    - If `$ARGUMENTS` is a URL, fetch it with WebFetch
-   - If `$ARGUMENTS` is a plan name without path, look in `~/Personal/AI-RON/specs/plans/`
+   - If `$ARGUMENTS` is a plan name without path, look in `specs/plans/` relative to the project root
 
 2. **Locate the design doc.** Plans should reference a design/brainstorm doc at the top (in a `**Design doc:**` field). If present, read it — this is the design source of truth that agents need alongside the plan. If no reference exists, check the plan's parent directory for `brainstorm.md` as a fallback. If neither is found, proceed without it — the plan may be self-contained.
 

@@ -33,9 +33,12 @@ Work through these steps in order. Each step completes before the next begins.
 
 Read the project before asking questions. Priority order:
 
-1. **Specs first** -- if `.specs` exists, read the specs directory. Specs are the source of truth; code is an implementation detail. Understand the behavioral contract before looking at implementation.
-2. **CLAUDE.md** -- project instructions, conventions, stack
-3. **Code, docs, commits** -- as needed to understand the current state
+1. **Interview artifacts** -- check for a `*_review/` directory with `summary.md` or `discussion.log` that relates to the current topic. If found, read the summary (and discussion log if needed for depth). This gives you the problem context the user already transferred. If the interview happened in this same session, the context is already in conversation history -- do not re-read files you already have.
+2. **Specs first** -- if `.specs` exists, read the specs directory. Specs are the source of truth; code is an implementation detail. Understand the behavioral contract before looking at implementation.
+3. **CLAUDE.md** -- project instructions, conventions, stack
+4. **Code, docs, commits** -- as needed to understand the current state
+
+Interview artifacts supplement but do not replace project exploration. You still need to understand the codebase, conventions, and existing architecture -- the interview tells you about the problem space, not the implementation landscape.
 
 If the project has no `.specs` file, note it. You may recommend adding one later, but do not interrupt the flow for it.
 
@@ -53,6 +56,27 @@ Present your understanding before diving into questions:
 This front-loads alignment and often eliminates several clarifying questions.
 
 ## Step 3: Scope gate
+
+Two assessments happen here.
+
+### 3a. Interview check
+
+After reading the project and surfacing assumptions, assess: does this topic require domain knowledge that isn't in the codebase?
+
+Signs you need an interview first:
+- The request references external systems, business processes, or organizational knowledge you can't see (CRM stages, vendor contracts, team workflows, compliance rules)
+- You can't tell where the feature fits in the existing architecture because the "why" lives outside the code
+- The request uses domain terms you'd need the user to define before you could even ask good design questions
+
+If the topic needs an interview, say so directly:
+
+> "This involves [specific external knowledge] that I can't see in the codebase. I'd design better with a fuller picture of the problem space. Want to start with `/interview` to get me up to speed, then come back to design?"
+
+If the user declines, proceed — they may know that the brainstorm questions will be enough. But make the recommendation.
+
+If the topic is well-understood from the codebase and docs (adding a feature to existing code, refactoring, fixing a bug, building something with clear technical scope), skip this and proceed.
+
+### 3b. Size check
 
 Assess the size of the change. If it looks small (localized, well-understood, low risk), ask via `AskUserQuestion`:
 

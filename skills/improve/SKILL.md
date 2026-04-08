@@ -144,8 +144,8 @@ For each section:
 - **Codebase gaps** — Apply the approved fixes
 - **New skills** — Create the skill files in the approved locations. For each new skill, ask where it should live if not specified in the report:
   - **This project only** — `.claude/skills/<name>/SKILL.md` in current project
-  - **AI-RON (version-controlled, local)** — `~/Personal/AI-RON/.claude/skills/<name>/SKILL.md`
-  - **Global (via AI-RON)** — AI-RON path AND symlink at `~/.claude/skills/<name>`
+  - **Project-level (version-controlled)** — `.claude/skills/<name>/SKILL.md` in the current project
+  - **Global (symlinked)** — project path AND symlink at `~/.claude/skills/<name>`
 - **Knowledge** — Write to memory using the approved destination (memory-observe MCP or auto-memory files)
 
 **Classification guidance for new skills:**

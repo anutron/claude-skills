@@ -1,3 +1,16 @@
+## v1.5.0 — 2026-04-08
+
+Portability fixes and interview/brainstorm handoffs.
+
+**Portability**
+- `execute-plan`, `improve`, `promote`, `bugbash` — removed hardcoded `~/Personal/AI-RON` and `/Users/aaron` paths. All published skills now use relative paths or dynamic resolution, so they work for anyone in any directory.
+
+**Interview + brainstorm connection**
+- `brainstorm` — new interview check at Step 3a: if the topic requires domain knowledge not in the codebase, recommends `/interview` first. Step 1 now reads interview artifacts (`*_review/` directories) when available.
+- `interview` — new brainstorm exit ramp in Phase 2 wrap-up: offers to hand off to `/brainstorm` when the interview surfaces actionable problems. New "guarding the interview" section pushes back when users drift toward solutions before the knowledge transfer is complete.
+
+---
+
 ## v1.4.0 — 2026-04-06
 
 Worktree awareness for ralph-review and fixit.

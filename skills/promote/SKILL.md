@@ -58,7 +58,7 @@ For borderline skills, explain what would need to change to make them universal.
 After the user selects which skills to promote, create symlinks:
 
 ```bash
-ln -sf ~/Personal/AI-RON/.claude/skills/<name> ~/.claude/skills/<name>
+ln -sf "$(pwd)/.claude/skills/<name>" ~/.claude/skills/<name>
 ```
 
 Report the final state of `~/.claude/skills/`.

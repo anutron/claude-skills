@@ -149,6 +149,20 @@ After all sections are reviewed:
 
 4. **Ask** if there is anything to revisit or if the review is complete
 
+5. **Offer brainstorm handoff** -- if the interview surfaced problems, gaps, or opportunities that could lead to building something, ask:
+
+   > "We've covered the problem space. Want to move into designing a solution? I can hand off to `/brainstorm` with everything we've discussed."
+
+   If the user says yes, invoke `/brainstorm` with a summary reference to the interview artifacts.
+
+## Guarding the Interview
+
+The interview's primary job is knowledge transfer -- getting what the user knows into a structured, shared understanding. Protect this purpose:
+
+- **If the user starts proposing solutions mid-interview**, gently redirect: "Hold that thought -- I want to make sure I understand the full picture before we start designing. Is there anything else about [current topic] I should know?"
+- **If the user says "let's just fix it"**, check: "Before we jump to solutions -- is there more context about the problem I need? Constraints, stakeholders, history? The better I understand the problem, the better the design will be."
+- **Do not resist indefinitely.** If the user pushes back ("no really, I've told you everything, let's go"), respect that and offer the brainstorm handoff. The guard is a nudge, not a gate.
+
 ---
 
 ## Interaction Rules
