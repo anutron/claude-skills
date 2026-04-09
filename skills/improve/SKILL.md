@@ -150,7 +150,7 @@ For each section:
 
 **Classification guidance for new skills:**
 - **Global**: General dev workflows (testing, reviewing, debugging, git operations). No project-specific dependencies.
-- **Personal**: Personal routines, integrations with personal data sources. Depends on your project infrastructure but not a specific repo.
+- **Personal**: Personal routines, memory integration, personal data sources. Depends on personal infrastructure.
 - **Project-only**: Workflows specific to the repo being worked in (deploy scripts, project-specific generators, domain logic).
 
 **Memory guidelines:**

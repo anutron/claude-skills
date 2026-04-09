@@ -30,7 +30,7 @@ Based on the context above, determine what phase of work the user is likely in:
 - **Debugging**: Error messages in recent conversation, test failures, investigation branches
 - **Starting fresh**: On main, no changes, beginning of session
 - **Session management**: Long conversation, lots of work done, end of session feel
-- **Skills housekeeping**: In a skills/config/docs focused repo
+- **Skills housekeeping**: Working on skills/config/docs
 
 ### Step 2: Print Relevant Skills First
 
@@ -40,7 +40,7 @@ Print a short "Relevant Now" section (3-6 skills max) based on the work context.
 - In the middle of building something? Suggest: /dev, /test, /debug
 - Open PR waiting for CI? Suggest: /pr, /pr-dashboard
 - Long session with lots of work? Suggest: /improve, /handoff, /changelog
-- On main with no changes? Suggest: /dev, /pr-dashboard, /list-skills
+- On main with no changes? Suggest: /dev, /pr-dashboard
 - Working on skills? Suggest: /write-skill, /promote, /steal
 
 Format:
@@ -63,7 +63,7 @@ OTHER SKILLS
   Git & PR:     /pr  /merge  /changelog  /pr-dashboard
   Session:      /handoff  /improve  /promote  /list-skills
   Creation:     /logo  /write-skill
-  Personal:     (project-specific skills not listed above)
+  Personal:     /steal  (plus any project-specific skills installed locally)
 ```
 
 Use the compact one-line-per-category format for this section. Only show categories that have remaining skills (after removing the ones in "Relevant Now"). Only show the Personal category if project-specific skills are installed.
