@@ -97,7 +97,7 @@ The report should contain ALL of the following sections:
 ### /proposed-name
 **What it does:** Brief description
 **Pattern observed:** What happened in the session that suggests this skill
-**Suggested location:** AI-RON | Global | Project-only
+**Suggested location:** Global | Personal | Project-only
 **Why that location:** Classification reasoning
 
 ---
@@ -117,7 +117,7 @@ The report should contain ALL of the following sections:
 - Each proposed change should quote the actual before/after text so Aaron can evaluate without context-switching
 - Codebase gaps should only include issues actually encountered, not speculative audits
 - Knowledge items should not duplicate CLAUDE.md or existing memory entries
-- New skill proposals should include the classification reasoning (Global/AI-RON/Project-only)
+- New skill proposals should include the classification reasoning (Global/Personal/Project-only)
 
 ### Step 4: Review
 
@@ -150,7 +150,7 @@ For each section:
 
 **Classification guidance for new skills:**
 - **Global**: General dev workflows (testing, reviewing, debugging, git operations). No project-specific dependencies.
-- **AI-RON**: Personal routines, Supabase memory integration, personal data sources. Depends on AI-RON infrastructure.
+- **Personal**: Personal routines, integrations with personal data sources. Depends on your project infrastructure but not a specific repo.
 - **Project-only**: Workflows specific to the repo being worked in (deploy scripts, project-specific generators, domain logic).
 
 **Memory guidelines:**

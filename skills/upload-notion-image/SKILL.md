@@ -110,7 +110,7 @@ Uploaded files must be attached within **1 hour** or they expire. Once attached,
 
 ## Integration with Other Skills
 
-Skills that generate images for Notion (like `/airon-blog` or `/airon-illustrate`) should use this skill instead of external hosting:
+Skills that generate images for Notion should use this skill instead of external hosting:
 
 ```bash
 # Instead of uploading to catbox.moe and using external URLs:

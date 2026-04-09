@@ -76,7 +76,7 @@ Wait for user approval before taking any action.
 ### Step 6: Execute Approved Removals
 
 For approved removals:
-- Local skills: remove the symlink from ~/.claude/skills/ (keep the source in AI-RON)
+- Local skills: remove the symlink from ~/.claude/skills/ (keep the source in your project)
 - Plugins: run claude plugins disable plugin-name
 
 Do NOT delete source files. Only remove symlinks and disable plugins so everything is reversible.

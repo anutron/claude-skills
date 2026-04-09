@@ -13,9 +13,9 @@ Scan tracked sources for new skills, patterns, and techniques to steal. Evaluate
 
 ## Context
 
-- Tracked sources: !`cat ~/Personal/AI-RON/.claude/skills/steal/sources.yaml 2>/dev/null`
-- Our skills: !`find ~/Personal/AI-RON/.claude/skills -maxdepth 1 -type d 2>/dev/null | head -30`
-- Our commands: !`find ~/Personal/AI-RON/.claude/commands -name "*.md" 2>/dev/null | head -20`
+- Tracked sources: !`cat .claude/skills/steal/sources.yaml 2>/dev/null`
+- Our skills: !`find .claude/skills -maxdepth 1 -type d 2>/dev/null | head -30`
+- Our commands: !`find .claude/commands -name "*.md" 2>/dev/null | head -20`
 
 ## Instructions
 
@@ -171,7 +171,7 @@ After presenting all reports, offer to steal from any source.
 Search all tracked source repos for a skill matching the name:
 1. For each source in `sources.yaml`, search `<local>` for skill files matching the name
 2. Read the full skill from the source repo
-3. Read any equivalent skill we have in AI-RON
+3. Read any equivalent skill we already have
 4. Present a detailed comparison: what the source skill does, what ours does (or doesn't), and a concrete plan for adopting or adapting it
 
 ---
@@ -219,12 +219,12 @@ For evaluation flow (new repos), omit the "Last scan" line since there is no pri
 
 When Aaron approves items to steal:
 
-1. **For skills**: Read the full source from the source repo, adapt for Aaron's environment (file paths, tool names, project structure, workflow differences), and write to `~/Personal/AI-RON/.claude/skills/<name>/SKILL.md`
+1. **For skills**: Read the full source from the source repo, adapt for your environment (file paths, tool names, project structure, workflow differences), and write to `.claude/skills/<name>/SKILL.md` in your project
 2. **For patterns**: Apply to CLAUDE.md, AGENTS.md, or relevant config files
 3. **For shell config**: Note it for manual adoption (do not modify shell config directly)
 
 When adapting skills:
 - Replace source-specific paths and tools
-- Adjust for Aaron's project structure (`~/Personal/applications/` vs whatever the source uses)
+- Adjust for your project structure
 - Keep the core logic and structure intact — that is what makes them good
 - Add any Aaron-specific context where relevant
