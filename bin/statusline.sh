@@ -137,15 +137,17 @@ fi
 TOPICS_DIR="${HOME}/.claude/session-topics"
 mkdir -p "$TOPICS_DIR" 2>/dev/null
 
-session_topic="AI-RON"
+session_topic="topic mode: auto (/set-topic to set)"
+session_topic_is_default=true
 if [ -n "$session_id" ]; then
     # Write PID → session ID mapping so the agent can discover its session
     echo "$session_id" > "$TOPICS_DIR/pid-$PPID.map"
 
     # Read topic for this session (if agent has written one)
     TOPIC_FILE="$TOPICS_DIR/${session_id}.txt"
-    if [ -f "$TOPIC_FILE" ]; then
+    if [ -s "$TOPIC_FILE" ]; then
         session_topic=$(head -1 "$TOPIC_FILE" | tr -d '\n' | tr '[:lower:]' '[:upper:]')
+        session_topic_is_default=false
     fi
 fi
 # Truncate to ~60% of header line width (computed after line_width is known)

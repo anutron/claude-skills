@@ -1,3 +1,15 @@
+## v1.9.0 — 2026-04-09
+
+Adoption fixes — quick-start guide, promote skill, and statusline default.
+
+**Changed**
+- `/promote` now detects skills in either `skills/` (repo root) or `.claude/skills/` (project convention), fixing the "none of the 38 skills are promoted" issue for adopters cloning this repo
+- Added quick-start guide to README with 5-step adoption flow (clone, compile rules, promote, hooks, statusline)
+- Clarified that hooks and statusline are terminal-only (steps 1-3 work in VS Code, JetBrains, desktop app too)
+- Statusline default topic changed from "AI-RON" to neutral "topic mode: auto" so it works for everyone
+
+---
+
 ## v1.8.0 — 2026-04-09
 
 Inject mode for claude-rules — non-destructive CLAUDE.md management.
