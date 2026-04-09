@@ -1,3 +1,17 @@
+## v1.7.0 — 2026-04-09
+
+Three new skills, publish cleanup.
+
+**New skills**
+- `/logo` — generates 6 distinct SVG logo alternatives (minimal, geometric, organic, structural, conceptual, bold) and a dark-themed comparison page for side-by-side review
+- `/software-best-practices` — post-implementation quality checker calibrated for personal projects. Runs tests, checks linting, validates run scripts, and iterates on failures. Includes goal-drift prevention to catch yak-shaving.
+- `/steal` — scans tracked GitHub repos for reusable skills, patterns, and techniques. Evaluates new repos on the fly, tracks sources for incremental rescans, and adapts stolen skills to your environment.
+
+**Changed**
+- `publish.sh` — cleaned EXCLUDE array: removed stale entries (`refresh-command-center`, `todo-agent`), published previously excluded skills
+
+---
+
 ## v1.6.0 — 2026-04-08
 
 New project creation workflow and tech stack blueprints.

@@ -213,9 +213,12 @@ These skills describe how agents should think and work. They're loaded by refere
 | [skill-audit](skills/skill-audit/SKILL.md) | Use after collecting usage data for a few weeks to identify dead weight -- recommends which skills to keep, prune, or consolidate |
 | [promote](skills/promote/SKILL.md) | Use when checking which project skills should be available globally |
 | [disk-cleanup](skills/disk-cleanup/SKILL.md) | Use when the user asks about disk space or storage -- scans for large consumers, never deletes without approval |
+| [logo](skills/logo/SKILL.md) | Use when the user wants to create or generate a logo -- produces 6 SVG alternatives with a side-by-side comparison page |
 | [mcp-prune](skills/mcp-prune/SKILL.md) | Use when starting work in a project with many global MCP servers that waste context tokens |
 | [upload-notion-image](skills/upload-notion-image/SKILL.md) | Use when embedding images in Notion pages -- uploads natively via the Notion API file upload flow |
 | [set-topic](skills/set-topic/SKILL.md) | Set the session topic displayed in the [status line](bin/statusline.sh) |
+| [software-best-practices](skills/software-best-practices/SKILL.md) | Use after completing implementation to validate code quality -- checks tests, linting, run scripts, error handling, executes code and iterates until success |
+| [steal](skills/steal/SKILL.md) | Use when the user wants to find reusable skills, patterns, or techniques from other repos -- scans tracked GitHub repos or evaluates new ones |
 | [list-skills](skills/list-skills/SKILL.md) | Use when you need a reminder of your toolkit -- quick reference of all available skills |
 
 ---

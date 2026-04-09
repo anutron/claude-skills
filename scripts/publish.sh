@@ -9,12 +9,7 @@ DEST="$(cd "$(dirname "$0")/.." && pwd)/skills"
 
 # Skills to exclude from publishing
 EXCLUDE=(
-  steal
-  refresh-command-center
-  logo
-  software-best-practices
   publish-skills
-  todo-agent
 )
 
 is_excluded() {
