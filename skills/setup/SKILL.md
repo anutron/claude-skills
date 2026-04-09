@@ -61,7 +61,6 @@ cd "$PLUGIN_ROOT/claude-rules" && bash compile.sh compile
 [ -f ~/.claude/CLAUDE.md ] && cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak.$(date +%Y%m%d)
 ln -sf "$DIST/global.md" ~/.claude/CLAUDE.md
 echo "symlink" > "$DIST/.mode-global"
-shasum -a 256 "$DIST/global.md" | awk '{print $1}' > "$DIST/.installed-hash"
 ```
 
 **Inject mode:**
@@ -87,14 +86,13 @@ else
   printf '%s\n' "$MARKER_END" >> ~/.claude/CLAUDE.md
 fi
 echo "inject" > "$DIST/.mode-global"
-# Stamp installed hash for version checking
-shasum -a 256 "$DIST/global.md" | awk '{print $1}' > "$DIST/.installed-hash"
 ```
 
-After either mode, always stamp the installed hash so version-check.sh can detect when an update is available:
+After either mode, stamp the installed version so version-check.sh can detect updates:
 ```bash
-DIST="$PLUGIN_ROOT/claude-rules/dist"
-shasum -a 256 "$DIST/global.md" | awk '{print $1}' > "$DIST/.installed-hash"
+PLUGIN_ROOT="<detected root>"
+VERSION=$(grep -o '"version": *"[^"]*"' "$PLUGIN_ROOT/.claude-plugin/plugin.json" | head -1 | grep -o '[0-9][0-9.]*')
+echo "$VERSION" > ~/.claude/.claude-skills-version
 ```
 
 ### Step 3: Terminal features
