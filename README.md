@@ -9,6 +9,26 @@ Steal what's useful. Most people point Claude at this repo and cherry-pick what 
 
 ## Quick start
 
+### Option A: Install as a plugin (recommended)
+
+```
+/plugin install claude-skills@anutron/claude-skills
+```
+
+Then run the setup wizard:
+
+```
+/claude-skills:setup
+```
+
+Setup walks you through interactively — rules, hooks, statusline. Pick what you want, skip what you don't. Skills are available immediately as `/claude-skills:<name>`.
+
+**Updates:** Plugin updates happen automatically. When rules, hooks, or the statusline change, a session-start check nudges you to re-run `/claude-skills:setup` to refresh the installed copies.
+
+### Option B: Clone and promote (manual)
+
+For more control, or if you want skills without the `claude-skills:` namespace prefix:
+
 **1. Clone the repo:**
 
 ```bash
@@ -60,7 +80,21 @@ chmod +x ~/.claude/statusline.sh
 
 Steps 1–3 work in the terminal CLI, VS Code, JetBrains, and the desktop app. Steps 4–5 are terminal-only — hooks and the status line rely on shell execution that IDE extensions don't support.
 
-That's it. You now have rules, skills, and (optionally) hooks working across all your projects.
+### Option C: Just steal what you like
+
+Don't want the full toolkit? Grab `/steal` and use it to cherry-pick:
+
+```
+I want to use https://github.com/anutron/claude-skills/blob/main/skills/steal/SKILL.md — can you add this skill?
+```
+
+Then point it at this repo:
+
+```
+/steal https://github.com/anutron/claude-skills
+```
+
+This scans the repo and presents a report of what's worth stealing. You choose what to adopt — individual skills, patterns, or just ideas.
 
 ---
 

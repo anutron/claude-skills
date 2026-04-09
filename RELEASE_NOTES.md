@@ -1,3 +1,19 @@
+## v1.10.0 — 2026-04-09
+
+Plugin support and interactive setup wizard.
+
+**New**
+- Plugin manifest (`.claude-plugin/plugin.json`) — repo is now installable as a Claude Code plugin via `/plugin install claude-skills@anutron/claude-skills`
+- `/setup` skill — interactive onboarding wizard that walks users through rules (replace/inject), hooks, and statusline installation
+- SessionStart hook (`version-check.sh`) — nudges users to re-run `/setup` when plugin updates change installed components
+- Three adoption paths in README: plugin install, clone + promote, or steal
+
+**Changed**
+- `publish.sh` now handles `plugin-only/` skills (skills that exist only in the published repo)
+- Statusline default topic changed from "AI-RON" to neutral "topic mode: auto (/set-topic to set)" in grey
+
+---
+
 ## v1.9.0 — 2026-04-09
 
 Adoption fixes — quick-start guide, promote skill, and statusline default.

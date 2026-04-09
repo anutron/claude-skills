@@ -120,5 +120,18 @@ for f in "${HOOKS_PUBLISH[@]}"; do
   fi
 done
 
+# Copy plugin-only skills (skills that exist only in the published repo, not in AI-RON)
+PLUGIN_ONLY="$(cd "$(dirname "$0")/.." && pwd)/plugin-only"
+plugin_copied=0
+if [ -d "$PLUGIN_ONLY" ]; then
+  for skill_dir in "$PLUGIN_ONLY"/*/; do
+    [ -d "$skill_dir" ] || continue
+    name="$(basename "$skill_dir")"
+    cp -r "$skill_dir" "$DEST/$name"
+    echo "  copy: $name (plugin-only)"
+    plugin_copied=$((plugin_copied + 1))
+  done
+fi
+
 echo ""
-echo "Published $copied skills ($skipped excluded), $docs_copied docs, $rules_copied rules, $bin_copied bin files, $hooks_copied hooks"
+echo "Published $copied skills + $plugin_copied plugin-only ($skipped excluded), $docs_copied docs, $rules_copied rules, $bin_copied bin files, $hooks_copied hooks"

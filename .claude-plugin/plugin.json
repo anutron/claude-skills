@@ -1,0 +1,14 @@
+{
+  "name": "claude-skills",
+  "version": "1.9.0",
+  "description": "Spec-driven development workflow and general-purpose skills for Claude Code",
+  "author": {
+    "name": "Aaron Newton",
+    "url": "https://github.com/anutron"
+  },
+  "repository": "https://github.com/anutron/claude-skills",
+  "license": "MIT",
+  "keywords": ["skills", "spec-driven", "development", "workflow", "testing", "review"],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json"
+}

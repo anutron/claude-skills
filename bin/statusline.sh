@@ -179,14 +179,19 @@ line_width=$((9 + 31 + 1 + 3 + 1 + gap_size + 1 + ${#used_max_part} + ${#model_p
 max_topic_len=$((line_width * 60 / 100))
 [ "${#session_topic}" -gt "$max_topic_len" ] && session_topic="${session_topic:0:$max_topic_len}"
 
-# Set terminal title to session topic
-printf '\033]0;%s\007' "$session_topic"
+# Set terminal title and topic color based on whether a custom topic is set
+if [ "$session_topic_is_default" = true ]; then
+    topic_color="$SLATE_600"
+else
+    topic_color="$PAI_A"
+    printf '\033]0;%s\007' "$session_topic"
+fi
 
 # Output: Header line (topic right-aligned to line_width)
 topic_len=${#session_topic}
 hr_len=$((line_width - topic_len - 1))  # -1 for the space before topic
 hr=$(printf '─%.0s' $(seq 1 $hr_len))
-printf "${SLATE_600}${hr}${RESET} ${PAI_A}${session_topic}${RESET}\n"
+printf "${SLATE_600}${hr}${RESET} ${topic_color}${session_topic}${RESET}\n"
 
 # Output: Context line (padded to fixed width)
 printf "${PAI_A}CONTEXT:${RESET} ${bar} ${LAST_BUCKET_COLOR}${pct_display}%%${RESET}${gap}${SLATE_500}(${used_display}/${max_display})${RESET}${model_display}\n"
