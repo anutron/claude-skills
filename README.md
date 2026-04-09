@@ -33,7 +33,7 @@ If you already have a `~/.claude/CLAUDE.md`, it gets backed up with a `.bak.YYYY
 
 This compares the skills in `skills/` against `~/.claude/skills/`, classifies each one, and symlinks the ones you choose. After promotion, skills are available in every project. Updates are a `git pull` away.
 
-**4. (Optional) Install hooks:**
+**4. (Optional, terminal only) Install hooks:**
 
 ```bash
 # Session topic reminders
@@ -47,12 +47,14 @@ chmod +x ~/.claude/hooks/log-skill-use.sh
 
 Then register them in `~/.claude/settings.json` — see the [Session Topics](#session-topics) section for the hooks config format.
 
-**5. (Optional) Install the status line:**
+**5. (Optional, terminal only) Install the status line:**
 
 ```bash
 cp bin/statusline.sh ~/.claude/
 chmod +x ~/.claude/statusline.sh
 ```
+
+Steps 1–3 work in the terminal CLI, VS Code, JetBrains, and the desktop app. Steps 4–5 are terminal-only — hooks and the status line rely on shell execution that IDE extensions don't support.
 
 That's it. You now have rules, skills, and (optionally) hooks working across all your projects.
 
