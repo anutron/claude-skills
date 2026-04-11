@@ -1,3 +1,12 @@
+## v1.14.0 — 2026-04-11
+
+Optional worktree isolation for plan execution.
+
+**Changed**
+- `/execute-plan` — added a worktree decision point before execution begins. Users can choose to run the entire plan in an isolated worktree, useful when running multiple coding workstreams simultaneously. Default remains executing on the current branch.
+
+---
+
 ## v1.13.0 — 2026-04-11
 
 Guardrails for design doc consistency and spec-aware commits.

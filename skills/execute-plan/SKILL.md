@@ -52,6 +52,23 @@ This ensures execution starts with a fresh context window. Do not proceed with e
 
 ---
 
+## Worktree Decision
+
+Before execution begins, ask the user how to run the plan:
+
+> **How do you want to run this plan?**
+>
+> - **Execute on current branch** (recommended) — stages run here, commits land on this branch as they complete
+> - **Execute in a worktree** — creates an isolated branch so you can keep working or run another agent in this session. Only useful if you're running multiple coding workstreams at the same time.
+
+Default to "current branch" if the user doesn't have a preference. If the user chooses worktree mode:
+
+1. Create a worktree at `.claude/worktree/<plan-slug>/` for the overall execution
+2. All per-stage worktrees nest inside that (`.claude/worktree/<plan-slug>/<task-slug>/`)
+3. After all stages complete and merge to the worktree's branch, present the result for the user to merge back to their original branch (via `/close-worktree` or manual merge)
+
+---
+
 ## Phase 1: Create Task Graph
 
 Use native `TaskCreate` with `addBlockedBy` to build the full dependency graph upfront. Every stage becomes a task. Independent stages share no blockers and become eligible simultaneously.
@@ -82,7 +99,7 @@ Stages: {N}
 Parallel opportunities: {which stages can run concurrently}
 ```
 
-Immediately proceed to execution — do not wait for user approval. The user invoked this skill intentionally.
+After the worktree decision (see above), proceed to execution — do not wait for additional approval. The user invoked this skill intentionally.
 
 ---
 
