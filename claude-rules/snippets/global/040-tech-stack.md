@@ -1,6 +1,6 @@
 ## Tech Stack Spectrum
 
-New applications follow the **stack spectrum** defined in `{{PROJECT_DIR}}/docs/stack-spectrum.md`. Four tiers, pick the lightest that fits:
+New applications follow the **stack spectrum** defined in `{{PROJECT_DIR}}/docs/stack-spectrum.md`. Four web tiers plus a CLI track — pick the lightest that fits:
 
 | Tier | When to use | Stack |
 |------|-------------|-------|
@@ -8,9 +8,11 @@ New applications follow the **stack spectrum** defined in `{{PROJECT_DIR}}/docs/
 | **Personal** | Local app with DB and real UI | Next.js + Prisma + MySQL + shadcn/ui |
 | **Distributed** | Local app, shared/hosted data | Personal tier + Supabase (Postgres) |
 | **Deployable** | Production app for other users | Rails + Next.js monorepo (see `docs/thanx-dev-system.md`) |
+| **CLI** | Terminal-first tool | Go + Cobra (+ Bubbletea for TUI) |
 
 ### Quick decision guide
 
+- **Terminal-first interaction?** → CLI (Go + Cobra).
 - **Need a database?** No → Lightweight. Yes → Personal or higher.
 - **Need shared data across devices?** → Distributed.
 - **Other people will use it?** → Deployable.

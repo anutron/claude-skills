@@ -1,3 +1,14 @@
+## v1.12.0 — 2026-04-11
+
+Brainstorm UX upgrade and Go CLI track.
+
+**Changed**
+- `/brainstorm` — all 6 user-facing decision points now use `AskUserQuestion` tool calls instead of blockquotes that rendered as plain text (interview check, size check, visual companion, pre-mortem, review offer, execution handoff)
+- Stack spectrum — added Go CLI track (Cobra + Bubbletea for TUI)
+- `/setup` — added permissions step to onboarding wizard
+
+---
+
 ## v1.11.0 — 2026-04-09
 
 Adoption cleanup and version-check simplification.

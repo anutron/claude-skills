@@ -68,31 +68,31 @@ Signs you need an interview first:
 - You can't tell where the feature fits in the existing architecture because the "why" lives outside the code
 - The request uses domain terms you'd need the user to define before you could even ask good design questions
 
-If the topic needs an interview, say so directly:
+If the topic needs an interview, call `AskUserQuestion`:
+- **Question:** "This involves [specific external knowledge] that I can't see in the codebase. I'd design better with a fuller picture of the problem space. Should we start with an interview to get me up to speed?"
+- **Options:** "Interview first (Recommended)" / "Skip, proceed with brainstorm"
 
-> "This involves [specific external knowledge] that I can't see in the codebase. I'd design better with a fuller picture of the problem space. Want to start with `/interview` to get me up to speed, then come back to design?"
-
-If the user declines, proceed — they may know that the brainstorm questions will be enough. But make the recommendation.
+If the user skips, proceed — they may know that the brainstorm questions will be enough.
 
 If the topic is well-understood from the codebase and docs (adding a feature to existing code, refactoring, fixing a bug, building something with clear technical scope), skip this and proceed.
 
 ### 3b. Size check
 
-Assess the size of the change. If it looks small (localized, well-understood, low risk), ask via `AskUserQuestion`:
+Assess the size of the change. If it looks small (localized, well-understood, low risk), call `AskUserQuestion`:
+- **Question:** "This looks like a small change. Want the full brainstorm process, or should I just confirm the approach and go?"
+- **Options:** "Full brainstorm (Recommended)" / "Quick confirm"
 
-> "This looks like a small change. Want the full brainstorm process, or should I just confirm the approach and go?"
-
-Options:
-- **Full brainstorm** (default) -- continue with the complete flow
+Behavior:
+- **Full brainstorm** -- continue with the complete flow
 - **Quick confirm** -- skip to a brief approach confirmation, then proceed directly to planning
 
 Only ask this for genuinely small changes. Medium and large changes always get the full process.
 
 ## Step 4: Visual companion offer
 
-If upcoming questions will involve visual content (layouts, mockups, wireframes, diagrams, side-by-side comparisons), offer the browser companion via `AskUserQuestion`. This must be its own message -- do not combine it with any other content:
-
-> "Some of what we're working on might be easier to show visually in a browser -- mockups, diagrams, layout comparisons. I can put together visuals as we go. This is token-intensive. Want to try it? (Requires opening a local URL)"
+If upcoming questions will involve visual content (layouts, mockups, wireframes, diagrams, side-by-side comparisons), call `AskUserQuestion` as its own message -- do not combine it with any other content:
+- **Question:** "Some of what we're working on might be easier to show visually in a browser -- mockups, diagrams, layout comparisons. This is token-intensive. Want to try it?"
+- **Options:** "Text only" / "Use browser visuals"
 
 If declined, proceed with text-only brainstorming. If accepted, read the visual companion guide before continuing:
 
@@ -123,9 +123,9 @@ Before asking detailed questions, assess scope: if the request describes multipl
 After gathering enough context, silently assess: what could go wrong? How big is the blast radius?
 
 - **Small** (localized change, easy to revert, no data risk) -- proceed without comment
-- **Large** (data loss risk, breaking change, cross-system impact, hard to revert) -- surface to the user before continuing:
-
-> "Before we finalize: [risk description]. [Mitigation suggestion]. Want to proceed or adjust the approach?"
+- **Large** (data loss risk, breaking change, cross-system impact, hard to revert) -- call `AskUserQuestion`:
+  - **Question:** "Before we finalize: [risk description]. [Mitigation suggestion]. Want to proceed or adjust the approach?"
+  - **Options:** "Proceed with mitigation" / "Adjust approach"
 
 ## Step 7: Propose approaches
 
@@ -164,13 +164,13 @@ Fix issues inline. No need to re-review -- just fix and move on.
 
 **Optional: Spec document reviewer** -- For complex brainstorm docs (multiple subsystems, cross-cutting concerns, or significant architectural decisions), consider dispatching a spec reviewer subagent using the prompt template at `skills/brainstorm/spec-document-reviewer-prompt.md`. Skip this for straightforward docs.
 
-**User review offer** -- via `AskUserQuestion`:
+**User review offer** -- call `AskUserQuestion`:
+- **Question:** "Brainstorm doc written to `<path>` and committed. Want to review it before I move to planning?"
+- **Options:** "Proceed to planning (Recommended)" / "Review in Plannotator"
 
-> "Brainstorm doc written to `<path>` and committed. Want to review it before I move to planning?"
-
-Options:
-- **No, proceed to planning** (default) -- move straight to Phase 2
-- **Yes, let me review** -- launch `/plannotator-annotate` on the brainstorm doc so the user can review with inline annotations. Address annotations (rewrite sections for questions, discuss only if explicitly requested), then re-open in Plannotator until approved. Then proceed to Phase 2.
+Behavior:
+- **Proceed to planning** -- move straight to Phase 2
+- **Review in Plannotator** -- launch `/plannotator-annotate` on the brainstorm doc so the user can review with inline annotations. Address annotations (rewrite sections for questions, discuss only if explicitly requested), then re-open in Plannotator until approved. Then proceed to Phase 2.
 
 ---
 
@@ -243,15 +243,13 @@ This is the one real review gate in the entire workflow. The user reads the stra
 
 ## Step 4: Execution handoff
 
-After plan approval, offer the choice via `AskUserQuestion`:
+After plan approval, call `AskUserQuestion`:
+- **Question:** "Plan approved and ready to execute. How do you want to proceed?"
+- **Options:** "Copy to clipboard (Recommended)" / "Execute in this session"
 
-> "Plan approved. Ready to execute. Two options:"
-
-Options:
-- **Copy to clipboard** (default) -- copy `/execute-plan <plan-path>` to the clipboard and tell the user to run `/clear` and paste. Claude cannot execute `/clear` itself.
+Behavior:
+- **Copy to clipboard** -- copy `/execute-plan <plan-path>` to the clipboard (`echo -n "/execute-plan <plan-path>" | pbcopy`) and tell the user to run `/clear` and paste. Claude cannot execute `/clear` itself.
 - **Execute in this session** -- run `/execute-plan` right here without clearing context (good for small plans or when current context is valuable)
-
-For clipboard: `echo -n "/execute-plan <plan-path>" | pbcopy`
 
 ---
 

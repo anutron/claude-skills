@@ -1,6 +1,6 @@
 # Stack Spectrum
 
-Four tiers of application blueprints. Pick the lightest tier that fits the job.
+Four tiers of web application blueprints, plus a CLI track. Pick the lightest that fits the job.
 
 ---
 
@@ -583,6 +583,87 @@ The full Thanx stack. See **[docs/thanx-dev-system.md](thanx-dev-system.md)** fo
 ### Why it's a rebuild
 
 Going from personal/distributed to deployable means replacing the entire API layer (Next.js route handlers to Rails + Grape), swapping the ORM (Prisma to ActiveRecord), adding auth, CI/CD, Docker, and Terraform. The Next.js frontend carries over to the `ux/` directory with minimal changes, but everything else is new. Start with the deployable blueprint from day one if you know the app needs to be production-grade.
+
+---
+
+## CLI applications
+
+Go. Single binary, no runtime dependencies, fast startup.
+
+### When to build a CLI vs a web app
+
+If the primary interaction is a terminal command (fetch data, run a process, automate something), build a CLI. If you need a visual interface, use the web tiers above. If you need both, build the CLI first — you can always add a web UI later.
+
+### Project structure
+
+```
+<app-name>/
+├── cmd/
+│   └── <binary-name>/
+│       └── main.go              # Entrypoint
+├── internal/                    # Private packages
+│   ├── <domain>/                # Domain logic
+│   └── <domain>_test.go
+├── go.mod
+├── go.sum
+├── Makefile                     # Build, install, test
+├── .specs
+├── specs/
+└── CLAUDE.md
+```
+
+For simple CLIs (single command, no subcommands), `main.go` at the root is fine — skip `cmd/` and `internal/`.
+
+### Technology
+
+- **Go** — standard library covers most needs (HTTP, JSON, file I/O, concurrency)
+- **Cobra** — argument parsing, subcommands, help text
+- **Bubbletea** — upgrade to this when you need an interactive TUI (menus, forms, real-time updates). Most CLIs don't — they run a command, print output, and exit.
+
+### Build and install
+
+Makefile with at minimum:
+
+```makefile
+BINARY := <app-name>
+
+.PHONY: build install test
+
+build:
+	go build -o $(BINARY) ./cmd/$(BINARY)
+
+install: build
+	ln -sf $(PWD)/$(BINARY) /usr/local/bin/$(BINARY)
+
+test:
+	go test ./...
+```
+
+### Testing
+
+Go's built-in `testing` package. No external framework needed.
+
+```go
+func TestParseInput(t *testing.T) {
+	result, err := ParseInput("valid-input")
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if result.Name != "expected" {
+		t.Errorf("got %q, want %q", result.Name, "expected")
+	}
+}
+```
+
+### Checklist: new CLI app
+
+- [ ] `mkdir <app-name> && cd <app-name> && go mod init github.com/<user>/<app-name>`
+- [ ] Create `cmd/<binary-name>/main.go` (or `main.go` at root for simple CLIs)
+- [ ] `go get github.com/spf13/cobra`
+- [ ] Create Makefile with build, install, test targets
+- [ ] Write CLAUDE.md
+- [ ] Add `.specs` file (if spec-driven)
+- [ ] Install pre-commit hook: `ln -sf {{CLAUDE_RULES_DIR}}/scripts/spec-check-hook.sh .git/hooks/pre-commit`
 
 ---
 
